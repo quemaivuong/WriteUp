@@ -6,6 +6,7 @@
 // ================================================================
 const express = require("express");
 const Anthropic = require("@anthropic-ai/sdk");
+const { HttpsProxyAgent } = require("hpagent");
 const {
   buildGrade6VocabPrimingPrompt,
   buildGrade6SelfDiagnosis,
@@ -15,7 +16,13 @@ const {
   buildGrade6ReflectionSummary
 } = require("../lib/feedbackPrompt");
 const router = express.Router();
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const proxyAgent = process.env.HTTPS_PROXY
+  ? new HttpsProxyAgent({ proxy: process.env.HTTPS_PROXY })
+  : undefined;
+const client = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  ...(proxyAgent && { httpAgent: proxyAgent })
+});
 // ── HELPER ────────────────────────────────────────────────────────
 // Calls Claude and parses the JSON response.
 // All our prompts return strict JSON — this handles the parsing
@@ -27,7 +34,7 @@ async function callClaude(systemPrompt, userPrompt) {
     system: systemPrompt,
     messages: [{ role: "user", content: userPrompt }]
   });
-  const raw = response.content[0].text.trim();
+  const raw = response.content[0].text.trim().replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim();
   try {
     return JSON.parse(raw);
   } catch (e) {
