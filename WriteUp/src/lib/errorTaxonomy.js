@@ -206,6 +206,74 @@ const ERROR_TAXONOMY = {
       "10-11": ["Add an analytical link after your evidence sentence and resubmit", "Check every evidence sentence — does it explain how it proves your point?", "Revise ensuring every sentence connects to the topic sentence"],
       "12": ["Add a paragraph-linking sentence and resubmit", "Check that every paragraph has a clear connection to your thesis", "Revise the full essay ensuring each paragraph advances the argument"]
     }
+  },
+
+  claim_no_explanation: {
+    id: "claim_no_explanation",
+    category: "logic",
+    label: "Claim made without explanation or example",
+    textbookReference: {
+      "6-7": "Unit 11 — Study Skill: giving explanations and examples",
+      "8-9": "PENDING", "10-11": "PENDING", "12": "PENDING"
+    },
+    attribution: {
+      "6-7": "You made a statement but stopped before showing why it is true. In conversation we often make statements without explaining them because the other person can ask questions. In writing the reader cannot ask, so you need to include the explanation yourself.",
+      "8-9": "This often happens because the student believes the claim is obvious and does not need support. In academic writing even obvious claims need a reason or example.",
+      "10-11": "This appears when the student has a strong opinion but moves to the next point before fully developing the current one.",
+      "12": "At this level this appears as evidence stated without analysis — the student presents a fact but does not explain what it means for the argument."
+    },
+    blameAssignment: {
+      "6-7": "After every statement ask yourself: why is this true? Or: what is an example of this? Then write one more sentence that answers that question. The Unit 11 Study Skill shows you exactly how to do this.",
+      "8-9": "Ask yourself: if someone disagreed with my claim, what would prove them wrong? Write that as your next sentence.",
+      "10-11": "Ask yourself three questions: What does this mean? Who does this affect? What happens as a result? Write one sentence that answers the most relevant question.",
+      "12": "After stating evidence always answer: so what? What does this evidence mean for your argument? That answer is your analysis sentence."
+    },
+    thinkingQuestions: {
+      "6-7": ["Why do you think this is true?", "What is one example of this from your own life?"],
+      "8-9": ["What would prove this to someone who disagrees?", "What is a specific example that shows this is true?", "Why does this matter?"],
+      "10-11": ["What does this mean for the people affected?", "What happens as a result of this?", "How does this connect to your main argument?"],
+      "12": ["What does this evidence prove about your thesis?", "What are the implications of this finding?", "How does this strengthen your position over the opposing view?"]
+    },
+    agencyOptions: {
+      "6-7": ["Answer one thinking question above and add it as a new sentence", "Look at the Unit 11 example and add an explanation the same way"],
+      "8-9": ["Answer one thinking question and add it as your next sentence", "Write one sentence starting with 'For example...' or 'This means...'", "Ask yourself 'why?' after your claim and write the answer"],
+      "10-11": ["Answer one thinking question and add an analytical sentence", "Write a sentence starting with 'This shows that...' or 'As a result...'", "Develop this point fully before moving to your next argument"],
+      "12": ["Write an analysis sentence answering 'So what?' and resubmit", "Answer the implication question above and add it after your evidence", "Revise ensuring every piece of evidence has an analysis sentence"]
+    }
+  },
+
+  evidence_no_analysis: {
+    id: "evidence_no_analysis",
+    category: "logic",
+    label: "Evidence stated without analytical link to claim",
+    textbookReference: {
+      "6-7": "N/A — not expected at Grade 6",
+      "8-9": "PENDING", "10-11": "PENDING", "12": "PENDING"
+    },
+    attribution: {
+      "6-7": "N/A — not expected at Grade 6",
+      "8-9": "You found evidence to support your claim — that is a significant step. But you stopped before completing the connection. The reader can see the claim and the evidence but not how you want them to connect.",
+      "10-11": "This is the most commonly missing element in academic paragraphs. Students learn to find evidence but assume the connection to the claim is obvious. It is not — the writer must make it explicit.",
+      "12": "Missing analysis is the difference between a descriptive paragraph and an analytical one. The analysis is where your voice as a thinker appears."
+    },
+    blameAssignment: {
+      "6-7": "N/A",
+      "8-9": "After your evidence write one sentence starting with 'This shows that...' or 'This means that...' that completes the link back to your topic sentence.",
+      "10-11": "Your analysis sentence must do three things: refer back to the evidence, explain what it means, and connect it to your claim. 'This demonstrates that...' or 'Consequently...' helps.",
+      "12": "Your analysis must go beyond restating evidence. Explain the significance, implication, or mechanism — why this evidence makes your argument stronger than the opposing view."
+    },
+    thinkingQuestions: {
+      "6-7": [],
+      "8-9": ["What does this evidence show about your claim?", "How does this prove your point?", "What would you say to someone who read this evidence but still disagreed?"],
+      "10-11": ["What does this evidence demonstrate about your argument?", "What is the mechanism — why does this evidence lead to your conclusion?", "How does this strengthen your position against the counterargument?"],
+      "12": ["What is the broader significance of this finding for your thesis?", "What implications does this evidence have beyond the immediate context?", "How does this evidence interact with the counterargument you addressed?"]
+    },
+    agencyOptions: {
+      "6-7": [],
+      "8-9": ["Write one sentence starting with 'This shows that...' and resubmit", "Answer one thinking question above and add it as your analysis sentence", "Write a sentence that connects your evidence back to your topic sentence"],
+      "10-11": ["Write an analysis sentence using one of the connectors above and resubmit", "Answer one thinking question and craft it into an analysis sentence", "Revise ensuring every evidence sentence has an explicit analytical link"],
+      "12": ["Write an analysis sentence addressing significance or implication and resubmit", "Answer the thinking question above and craft a full analytical sentence", "Revise ensuring evidence and analysis are fully integrated throughout"]
+    }
   }
 
 };
