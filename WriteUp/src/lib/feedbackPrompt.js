@@ -1,3 +1,5 @@
+const { getErrorEntry, getGradeBandKey } = require("./errorTaxonomy");
+const { processSessionPatterns } = require("./patternTracker");
 // ================================================================
 // WriteUp — feedbackPrompt.js
 // Grade-by-grade prompt builder grounded in Tiếng Anh textbook series
