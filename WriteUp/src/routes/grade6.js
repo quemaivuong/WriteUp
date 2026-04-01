@@ -13,7 +13,8 @@ const {
   buildGrade6DescriptiveFeedback,
   buildGrade6OpinionFeedback,
   buildGrade6HintPrompt,
-  buildGrade6ReflectionSummary
+  buildGrade6ReflectionSummary,
+  processGrade6FeedbackResponse
 } = require("../lib/feedbackPrompt");
 const router = express.Router();
 const proxyAgent = process.env.HTTPS_PROXY
@@ -117,31 +118,47 @@ router.post("/feedback/descriptive", async (req, res) => {
       guidingQuestions,
       paragraph,
       selfDiagnosis,
-      apprehensionFlags = []
+      apprehensionFlags = [],
+      sessionLog = []
     } = req.body;
+
     if (!taskType || !unitTopic || !paragraph || !selfDiagnosis) {
       return res.status(400).json({
         error: "taskType, unitTopic, paragraph, and selfDiagnosis are required"
       });
     }
+
     if (!Array.isArray(guidingQuestions)) {
       return res.status(400).json({
         error: "guidingQuestions must be an array"
       });
     }
+
     const prompt = buildGrade6DescriptiveFeedback(
       taskType,
       unitTopic,
       guidingQuestions,
       paragraph,
       selfDiagnosis,
+      apprehensionFlags,
+      sessionLog
+    );
+
+    const raw = await callClaude(prompt.system, prompt.user);
+    const result = processGrade6FeedbackResponse(
+      raw,
+      6,
+      sessionLog,
       apprehensionFlags
     );
-    const result = await callClaude(prompt.system, prompt.user);
+
     return res.json({ success: true, data: result });
+
   } catch (error) {
     console.error("descriptive feedback error:", error);
-    return res.status(500).json({ error: "Failed to generate descriptive feedback" });
+    return res.status(500).json({
+      error: "Failed to generate descriptive feedback"
+    });
   }
 });
 // ================================================================
@@ -163,24 +180,39 @@ router.post("/feedback/opinion", async (req, res) => {
       taskType,
       paragraph,
       selfDiagnosis,
-      apprehensionFlags = []
+      apprehensionFlags = [],
+      sessionLog = []
     } = req.body;
+
     if (!taskType || !paragraph || !selfDiagnosis) {
       return res.status(400).json({
         error: "taskType, paragraph, and selfDiagnosis are required"
       });
     }
+
     const prompt = buildGrade6OpinionFeedback(
       taskType,
       paragraph,
       selfDiagnosis,
+      apprehensionFlags,
+      sessionLog
+    );
+
+    const raw = await callClaude(prompt.system, prompt.user);
+    const result = processGrade6FeedbackResponse(
+      raw,
+      6,
+      sessionLog,
       apprehensionFlags
     );
-    const result = await callClaude(prompt.system, prompt.user);
+
     return res.json({ success: true, data: result });
+
   } catch (error) {
     console.error("opinion feedback error:", error);
-    return res.status(500).json({ error: "Failed to generate opinion feedback" });
+    return res.status(500).json({
+      error: "Failed to generate opinion feedback"
+    });
   }
 });
 // ================================================================
