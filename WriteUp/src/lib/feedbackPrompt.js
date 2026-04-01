@@ -470,6 +470,78 @@ Enjoyment (1–5): ${enjoyment}`
 }
 // ── EXPORTS ───────────────────────────────────────────────────────
 // Grade 7–12 functions to be added after textbook review
+// ── RESPONSE PROCESSOR ───────────────────────────────────────────
+// Takes Claude's raw feedback JSON and enriches it with the full
+// Ohlsson chain from errorTaxonomy.js, runs pattern tracking,
+// and assembles the final response for the frontend.
+// Called by the route handlers in grade6.js after callClaude().
+
+function processGrade6FeedbackResponse(
+  rawResponse,
+  grade,
+  sessionLog,
+  apprehensionFlags
+) {
+  const gradeBandKey = getGradeBandKey(grade);
+
+  // Enrich each detected error with full Ohlsson chain
+  const enrichedErrors = (rawResponse.errors_detected || []).map(detected => {
+    const entry = getErrorEntry(detected.error_type, grade);
+    if (!entry) return null;
+
+    return {
+      error_type: detected.error_type,
+      surface: detected.surface,
+      label: entry.label,
+      category: entry.category,
+
+      // Step 2 — Why did this happen?
+      attribution: entry.attribution,
+
+      // Step 3 — What mental model needs to change?
+      blame_assignment: entry.blameAssignment,
+
+      // Step 4 — What should the student do?
+      agency_options: entry.agencyOptions,
+
+      // Supporting data for coherence and logic errors
+      replacement_options: entry.replacementOptions || null,
+      thinking_questions: entry.thinkingQuestions || null,
+
+      // Textbook reference for self-directed review
+      textbook_reference: entry.textbookReference
+    };
+  }).filter(Boolean);
+
+  // Extract error type IDs for pattern tracking
+  const newErrorTypes = enrichedErrors.map(e => e.error_type);
+
+  // Run pattern tracking
+  const { updatedLog, sessionPatterns, patternAlerts } =
+    processSessionPatterns(sessionLog, newErrorTypes, grade);
+
+  // Assemble final response
+  return {
+    // Core feedback fields from Claude
+    action: rawResponse.action,
+    diagnosis_response: rawResponse.diagnosis_response,
+    what_is_strong: rawResponse.what_is_strong,
+    message: rawResponse.message,
+    model_sentence: rawResponse.model_sentence || null,
+
+    // Enriched errors with full Ohlsson chain
+    errors: enrichedErrors,
+
+    // Pattern tracking
+    session_log: updatedLog,
+    session_patterns: sessionPatterns,
+    pattern_alerts: patternAlerts,
+
+    // Grade context for frontend display
+    grade_band: gradeBandKey
+  };
+}
+
 module.exports = {
   // Grade 6
   GRADE_6,
@@ -479,6 +551,8 @@ module.exports = {
   buildGrade6OpinionFeedback,
   buildGrade6HintPrompt,
   buildGrade6ReflectionSummary,
+  processGrade6FeedbackResponse,
+
   // Shared utilities
   buildApprehensionInstructions
 };
