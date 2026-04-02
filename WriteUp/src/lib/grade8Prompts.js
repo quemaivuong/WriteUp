@@ -435,3 +435,165 @@ Respond ONLY with valid JSON:
 Student self-diagnosis: "${selfDiagnosis}"`
   };
 }
+
+// ── ON-DEMAND HINT (Gallagher, 2016) ─────────────────────────────
+
+function buildGrade8HintPrompt(mode, taskType, currentText, apprehensionFlags) {
+  const tone = buildApprehensionInstructions(apprehensionFlags);
+
+  const modeContext = {
+    descriptive: {
+      what_to_think_about: "what are the main points about this topic that your reader still needs to know?",
+      what_features_to_use: "use a connector to signal the relationship between your sentences — First, Then, However, because",
+      what_question_to_answer: "what is one more specific detail that would help your reader understand the topic better?"
+    },
+    advantagesDisadvantages: {
+      what_to_think_about: "for each point you made, did you explain WHY it is an advantage or disadvantage — or did you just name it?",
+      what_features_to_use: "extend each point using 'because' or 'This means that' — for example: 'Firstly, it is convenient because people can shop from home and save time.'",
+      what_question_to_answer: "pick your strongest point and ask: why does this matter to the people affected by it?"
+    },
+    agreeDisagree: {
+      what_to_think_about: "after each reason you gave, did you explain how that reason proves your position — or did you stop at the reason?",
+      what_features_to_use: "add an analytical link after each reason using 'This means that...' or 'This shows that...' or 'Therefore...'",
+      what_question_to_answer: "take your first reason and ask: so what does this mean for the argument? Write one sentence that answers that question."
+    },
+    noticeWriting: {
+      what_to_think_about: "check your notice against the five required parts: institution name, date, body details, contact information, author signature — which is missing?",
+      what_features_to_use: "use clear formal phrases: 'All students are required to...', 'For more information, please contact...', 'Signed:'",
+      what_question_to_answer: "if someone read your notice, would they know exactly what the event is, when and where it happens, and who to contact? What information is still missing?"
+    }
+  };
+
+  const ctx = modeContext[mode] || modeContext.descriptive;
+
+  return {
+    system: `You are an ESL writing coach for a Vietnamese Grade 8 student
+(CEFR A2). The student is stuck and has asked for a hint.
+
+TONE INSTRUCTIONS:
+${tone}
+
+Your hint must have exactly three layers:
+1. WHAT TO THINK ABOUT: ${ctx.what_to_think_about}
+2. WHAT FEATURES TO USE: ${ctx.what_features_to_use}
+3. WHAT QUESTION TO ANSWER: ${ctx.what_question_to_answer}
+
+Do not write the sentence for them.
+Keep language at A2 level.
+
+Respond ONLY with valid JSON, no other text:
+{
+  "what_to_think_about": "<focusing question>",
+  "what_features_to_use": "<specific connector or structure with example>",
+  "what_question_to_answer": "<one concrete question>",
+  "encouragement": "<one warm specific sentence>"
+}`,
+    user: `Mode: ${mode}
+Task type: ${taskType}
+What the student has written so far: "${currentText}"`
+  };
+}
+
+// ── POST-TASK REFLECTION ──────────────────────────────────────────
+
+function buildGrade8ReflectionSummary(
+  taskType, mode, attemptsNeeded,
+  perceivedSuccess, enjoyment, apprehensionFlags
+) {
+  const tone = buildApprehensionInstructions(apprehensionFlags);
+
+  const modeSkill = {
+    descriptive:             "organising information clearly and connecting ideas with appropriate connectors",
+    advantagesDisadvantages: "arguing one side of a topic with specific points and explanations",
+    agreeDisagree:           "stating a clear position and supporting it with reasons and analytical links",
+    noticeWriting:           "writing a clear and complete notice with all required parts"
+  };
+
+  return {
+    system: `You are an ESL writing coach closing a writing session
+with a Vietnamese Grade 8 student (CEFR A2).
+
+TONE INSTRUCTIONS:
+${tone}
+
+The key skill being developed at Grade 8 in this mode:
+${modeSkill[mode] || modeSkill.descriptive}
+
+Give a closing message that connects what the student did to
+the skill they were practising. If they needed many attempts,
+frame it as persistence. Keep language clear and encouraging.
+
+Respond ONLY with valid JSON, no other text:
+{
+  "closing_message": "<2-3 sentences: name the skill, note one specific thing they did well, end with encouragement>",
+  "growth_point": "<one specific skill or behaviour demonstrated today>",
+  "focus_for_next_time": "<one concrete thing to try in next writing task>"
+}`,
+    user: `Task type: ${taskType}
+Mode: ${mode}
+Attempts needed: ${attemptsNeeded}
+Perceived success (1-5): ${perceivedSuccess}
+Enjoyment (1-5): ${enjoyment}`
+  };
+}
+
+// ── RESPONSE PROCESSOR ───────────────────────────────────────────
+
+function processGrade8FeedbackResponse(
+  rawResponse, grade, sessionLog, apprehensionFlags
+) {
+  const gradeBandKey = getGradeBandKey(grade);
+
+  const enrichedErrors = (rawResponse.errors_detected || []).map(detected => {
+    const entry = getErrorEntry(detected.error_type, grade);
+    if (!entry) return null;
+    return {
+      error_type:          detected.error_type,
+      surface:             detected.surface,
+      label:               entry.label,
+      category:            entry.category,
+      attribution:         entry.attribution,
+      blame_assignment:    entry.blameAssignment,
+      agency_options:      entry.agencyOptions,
+      replacement_options: entry.replacementOptions || null,
+      thinking_questions:  entry.thinkingQuestions || null,
+      textbook_reference:  entry.textbookReference
+    };
+  }).filter(Boolean);
+
+  const newErrorTypes = enrichedErrors.map(e => e.error_type);
+
+  const { updatedLog, sessionPatterns, patternAlerts } =
+    processSessionPatterns(sessionLog, newErrorTypes, grade);
+
+  return {
+    action:             rawResponse.action,
+    diagnosis_response: rawResponse.diagnosis_response,
+    what_is_strong:     rawResponse.what_is_strong,
+    message:            rawResponse.message,
+    hint:               rawResponse.hint || null,
+
+    // Mode-specific check fields
+    points_check:  rawResponse.points_check  || null,
+    stage_check:   rawResponse.stage_check   || null,
+    notice_check:  rawResponse.notice_check  || null,
+
+    errors:           enrichedErrors,
+    session_log:      updatedLog,
+    session_patterns: sessionPatterns,
+    pattern_alerts:   patternAlerts,
+    grade_band:       gradeBandKey
+  };
+}
+
+module.exports = {
+  buildGrade8SelfDiagnosis,
+  buildGrade8VocabPrimingPrompt,
+  buildGrade8DescriptiveFeedback,
+  buildGrade8AdvDisadvFeedback,
+  buildGrade8AgreeDisagreeFeedback,
+  buildGrade8NoticeFeedback,
+  buildGrade8HintPrompt,
+  buildGrade8ReflectionSummary,
+  processGrade8FeedbackResponse
+};
