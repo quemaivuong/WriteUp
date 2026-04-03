@@ -550,5 +550,6 @@ module.exports = {
   buildPushbackPrompt,
   buildRevisionPrompt,
   buildKeepsPrompt,
+  processConversationTurn,
   TRACK_MAP
 };
