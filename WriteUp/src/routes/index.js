@@ -3,5 +3,6 @@ const router = express.Router();
 router.use("/grade6", require("./grade6"));
 router.use("/grade7", require("./grade7"));
 router.use("/grade8", require("./grade8"));
+router.use("/conversation", require("./conversation"));
 // Grade 9-12 routes to be added after textbook review
 module.exports = router;
