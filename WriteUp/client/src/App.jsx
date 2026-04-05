@@ -1,121 +1,145 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import Navbar from './components/Navbar'
+import WritePage from './pages/WritePage'
+import PeerPage from './pages/PeerPage'
+import './styles/global.css'
+import './styles/components.css'
+import '@fontsource/dm-sans/400.css'
+import '@fontsource/dm-sans/500.css'
+import '@fontsource/lora/400.css'
+import '@fontsource/lora/600.css'
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+// ── Generate or retrieve persistent student ID ───────────────────
+function getOrCreateStudentId() {
+  let id = localStorage.getItem('writeup_student_id')
+  if (!id) {
+    id = 'student_' + Math.random().toString(36).slice(2, 11)
+    localStorage.setItem('writeup_student_id', id)
+  }
+  return id
 }
 
-export default App
+export default function App() {
+  // ── Global state ───────────────────────────────────────────────
+  const [studentId] = useState(getOrCreateStudentId)
+  const [grade, setGrade] = useState(
+    parseInt(localStorage.getItem('writeup_grade') || '8')
+  )
+  const [studentName, setStudentName] = useState(
+    localStorage.getItem('writeup_name') || 'Student'
+  )
+  const [sessionId, setSessionId] = useState(null)
+  const [conversationHistory, setConversationHistory] = useState([])
+  const [pendingErrors, setPendingErrors] = useState([])
+  const [disputedError, setDisputedError] = useState(null)
+  const [apprehensionFlags, setApprehensionFlags] = useState([])
+  const [draftSubmitted, setDraftSubmitted] = useState(false)
+  const [selfCheckDone, setSelfCheckDone] = useState(false)
+
+  // Persist grade to localStorage
+  useEffect(() => {
+    localStorage.setItem('writeup_grade', grade)
+  }, [grade])
+
+  // Persist name to localStorage
+  useEffect(() => {
+    localStorage.setItem('writeup_name', studentName)
+  }, [studentName])
+
+  // ── Shared handlers ────────────────────────────────────────────
+  function handleNewTurn(systemResponse) {
+    setSessionId(systemResponse.sessionId)
+
+    // Add system message to display history
+    setConversationHistory(prev => [
+      ...prev,
+      {
+        role: 'system',
+        content: systemResponse.systemMessage,
+        whatIsStrong: systemResponse.whatIsStrong,
+        directFeedback: systemResponse.directFeedback,
+        socraticQuestions: systemResponse.socraticQuestions,
+        invitation: systemResponse.invitation,
+        stageComplete: systemResponse.stageComplete
+      }
+    ])
+
+    // Update pending errors — keep Socratic questions open
+    if (systemResponse.socraticQuestions?.length > 0) {
+      setPendingErrors(systemResponse.socraticQuestions.map(q => ({
+        error_type: q.error_type,
+        surface: q.surface,
+        track: q.track,
+        question: q.question
+      })))
+    } else {
+      setPendingErrors([])
+    }
+
+    setDisputedError(null)
+  }
+
+  function handleStudentMessage(message) {
+    setConversationHistory(prev => [
+      ...prev,
+      { role: 'student', content: message }
+    ])
+  }
+
+  function handleDraftSubmitted() {
+    setDraftSubmitted(true)
+  }
+
+  function handleNewSession() {
+    setSessionId(null)
+    setConversationHistory([])
+    setPendingErrors([])
+    setDisputedError(null)
+    setSelfCheckDone(false)
+  }
+
+  const sharedProps = {
+    studentId,
+    grade,
+    setGrade,
+    studentName,
+    setStudentName,
+    sessionId,
+    conversationHistory,
+    pendingErrors,
+    disputedError,
+    setDisputedError,
+    apprehensionFlags,
+    setApprehensionFlags,
+    selfCheckDone,
+    setSelfCheckDone,
+    draftSubmitted,
+    handleNewTurn,
+    handleStudentMessage,
+    handleDraftSubmitted,
+    handleNewSession
+  }
+
+  return (
+    <BrowserRouter>
+      <Navbar
+        studentName={studentName}
+        grade={grade}
+        draftSubmitted={draftSubmitted}
+      />
+      <Routes>
+        <Route path="/" element={<Navigate to="/write" replace />} />
+        <Route path="/write" element={<WritePage {...sharedProps} />} />
+        <Route
+          path="/peer"
+          element={
+            draftSubmitted
+              ? <PeerPage studentId={studentId} grade={grade} />
+              : <Navigate to="/write" replace />
+          }
+        />
+      </Routes>
+    </BrowserRouter>
+  )
+}
