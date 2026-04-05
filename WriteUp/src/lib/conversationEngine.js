@@ -15,6 +15,23 @@ const { getErrorEntry, getGradeBandKey } = require("./errorTaxonomy");
 const { processSessionPatterns } = require("./patternTracker");
 const { buildApprehensionInstructions } = require("./feedbackPrompt");
 
+// ── MOCK MODE ─────────────────────────────────────────────────────
+// Set MOCK_SUPABASE=true in .env to bypass Supabase calls.
+// All conversation logic and Claude API calls still run normally.
+// Supabase writes are skipped and mock session IDs are returned.
+// Remove this when deploying to production.
+
+const MOCK_SUPABASE = process.env.MOCK_SUPABASE === "true";
+
+const mockSession = (data) => ({
+  id: `mock_session_${Date.now()}`,
+  session_log: [],
+  current_paragraph: data?.paragraph || null,
+  apprehension_flags: data?.apprehensionFlags || [],
+  status: "active",
+  ...data
+});
+
 // ── TRACK ASSIGNMENT ─────────────────────────────────────────────
 // Determines which feedback track applies to each error type.
 // Grammar → direct (non-negotiable)
