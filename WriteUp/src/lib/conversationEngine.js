@@ -535,6 +535,226 @@ Respond ONLY with valid JSON:
   };
 }
 
+async function processConversationTurn({
+  claudeClient,
+  sessionId,
+  studentId,
+  studentMessage,
+  currentParagraph,
+  grade,
+  taskType,
+  mode,
+  unitTopic,
+  apprehensionFlags,
+  gradeBandData,
+  pendingErrors,
+  disputedError
+}) {
+  let session;
+  if (sessionId) {
+    session = await getSession(sessionId);
+  } else {
+    session = await createSession({
+      studentId,
+      grade,
+      taskType,
+      mode,
+      unitTopic,
+      paragraph: currentParagraph,
+      apprehensionFlags,
+      sessionLog: []
+    });
+  }
+
+  const history = await getConversationHistory(session.id);
+  const turnNumber = history.length + 1;
+
+  const turnType = detectTurnType(studentMessage, history);
+
+  await saveTurn(
+    session.id, turnNumber, "student", turnType,
+    studentMessage, {}
+  );
+
+  let promptData;
+  switch (turnType) {
+    case "initial_feedback":
+      promptData = buildInitialFeedbackPrompt(
+        currentParagraph, grade, mode, taskType, unitTopic,
+        apprehensionFlags, gradeBandData, history
+      );
+      break;
+    case "student_answer":
+      promptData = buildStudentAnswerPrompt(
+        studentMessage, grade, apprehensionFlags,
+        gradeBandData, history, pendingErrors || []
+      );
+      break;
+    case "student_pushback":
+      promptData = buildPushbackPrompt(
+        studentMessage, grade, apprehensionFlags,
+        gradeBandData, history, disputedError || {}
+      );
+      break;
+    case "student_revision":
+      promptData = buildRevisionPrompt(
+        currentParagraph, grade, mode, taskType,
+        apprehensionFlags, gradeBandData,
+        history, pendingErrors || []
+      );
+      break;
+    case "student_keeps":
+      promptData = buildKeepsPrompt(
+        studentMessage, grade, apprehensionFlags,
+        gradeBandData, history, disputedError || {}
+      );
+      break;
+    default:
+      promptData = buildStudentAnswerPrompt(
+        studentMessage, grade, apprehensionFlags,
+        gradeBandData, history, pendingErrors || []
+      );
+  }
+
+  const claudeResponse = await claudeClient.messages.create({
+    model: "claude-opus-4-5",
+    max_tokens: 1024,
+    system: promptData.system,
+    messages: promptData.messages
+  });
+
+  const raw = claudeResponse.content[0].text
+    .trim()
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/```\s*$/i, "")
+    .trim();
+
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    console.error("Claude response was not valid JSON:", raw);
+    throw new Error("Invalid response format from Claude");
+  }
+
+  let systemMessageText = "";
+  if (parsed.what_is_strong) systemMessageText += parsed.what_is_strong + "\n\n";
+  if (parsed.direct_feedback && parsed.direct_feedback.length > 0) {
+    parsed.direct_feedback.forEach(fb => {
+      systemMessageText += fb.message + "\n\n";
+    });
+  }
+  if (parsed.socratic_questions && parsed.socratic_questions.length > 0) {
+    parsed.socratic_questions.forEach(q => {
+      systemMessageText += q.question + "\n\n";
+    });
+  }
+  if (parsed.response)        systemMessageText += parsed.response + "\n\n";
+  if (parsed.overall_message) systemMessageText += parsed.overall_message + "\n\n";
+  if (parsed.invitation)      systemMessageText += parsed.invitation;
+  if (parsed.student_choice)  systemMessageText += "\n\n" + parsed.student_choice;
+  systemMessageText = systemMessageText.trim();
+
+  let responseTrack = "direct";
+  if (parsed.socratic_questions && parsed.socratic_questions.length > 0) {
+    const tracks = parsed.socratic_questions.map(q => q.track);
+    if (tracks.includes("full_socratic"))      responseTrack = "full_socratic";
+    else if (tracks.includes("soft_socratic")) responseTrack = "soft_socratic";
+  }
+
+  let systemTurnType = "initial_feedback";
+  if (turnType === "student_answer") {
+    systemTurnType = parsed.assessment === "correct"
+      ? "system_confirmation" : "system_question";
+  } else if (turnType === "student_pushback") {
+    systemTurnType = parsed.accepts_pushback
+      ? "system_accepts_pushback" : "system_holds_position";
+  } else if (turnType === "student_revision") {
+    systemTurnType = parsed.stage_complete
+      ? "system_confirmation" : "system_question";
+  } else if (turnType === "student_keeps") {
+    systemTurnType = "system_confirmation";
+  }
+
+  const errorsAddressed = [];
+  if (parsed.direct_feedback) {
+    parsed.direct_feedback.forEach(fb => {
+      if (fb.error_type) errorsAddressed.push(fb.error_type);
+    });
+  }
+  if (parsed.socratic_questions) {
+    parsed.socratic_questions.forEach(q => {
+      if (q.error_type) errorsAddressed.push(q.error_type);
+    });
+  }
+  if (parsed.new_error_type) errorsAddressed.push(parsed.new_error_type);
+
+  await saveTurn(
+    session.id, turnNumber + 1, "system", systemTurnType,
+    systemMessageText,
+    { errorsAddressed, responseTrack }
+  );
+
+  const currentLog = session.session_log || [];
+  const { updatedLog, sessionPatterns, patternAlerts } =
+    processSessionPatterns(currentLog, errorsAddressed, grade);
+
+  const sessionUpdates = { session_log: updatedLog };
+  if (currentParagraph) sessionUpdates.current_paragraph = currentParagraph;
+  if (parsed.stage_complete) sessionUpdates.status = "complete";
+  await updateSession(session.id, sessionUpdates);
+
+  if (errorsAddressed.length > 0 && studentId) {
+    await updateLongTermPatterns(studentId, errorsAddressed, grade);
+  }
+
+  const enrichedDirectErrors = (parsed.direct_feedback || []).map(fb => {
+    const entry = getErrorEntry(fb.error_type, grade);
+    if (!entry) return fb;
+    return {
+      ...fb,
+      attribution:        entry.attribution,
+      blame_assignment:   entry.blameAssignment,
+      agency_options:     entry.agencyOptions,
+      textbook_reference: entry.textbookReference
+    };
+  });
+
+  const enrichedSocraticQuestions = (parsed.socratic_questions || []).map(q => {
+    const entry = getErrorEntry(q.error_type, grade);
+    if (!entry) return q;
+    return {
+      ...q,
+      attribution:        entry.attribution,
+      textbook_reference: entry.textbookReference
+    };
+  });
+
+  return {
+    sessionId:             session.id,
+    turnType,
+    systemTurnType,
+    responseTrack,
+    systemMessage:         systemMessageText,
+    whatIsStrong:          parsed.what_is_strong || null,
+    directFeedback:        enrichedDirectErrors,
+    socraticQuestions:     enrichedSocraticQuestions,
+    overallMessage:        parsed.overall_message || null,
+    invitation:            parsed.invitation || null,
+    assessment:            parsed.assessment || null,
+    acceptsPushback:       parsed.accepts_pushback || null,
+    outcome:               parsed.outcome || null,
+    stageComplete:         parsed.stage_complete || false,
+    whatImproved:          parsed.what_improved || null,
+    sessionPatterns,
+    patternAlerts,
+    sessionLog:            updatedLog,
+    awaitingStudentResponse: !parsed.stage_complete &&
+      turnType !== "student_keeps"
+  };
+}
+
 module.exports = {
   getTrack,
   detectTurnType,
