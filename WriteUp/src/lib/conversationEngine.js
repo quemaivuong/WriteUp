@@ -123,62 +123,66 @@ function formatHistoryForClaude(turns) {
 // ── SUPABASE OPERATIONS ───────────────────────────────────────────
 
 async function createSession(sessionData) {
+  if (MOCK_SUPABASE) return mockSession(sessionData);
   const { data, error } = await supabase
     .from("writing_sessions")
     .insert([{
-      student_id:        sessionData.studentId,
-      grade:             sessionData.grade,
-      task_type:         sessionData.taskType,
-      mode:              sessionData.mode,
-      unit_topic:        sessionData.unitTopic || null,
-      current_paragraph: sessionData.paragraph || null,
-      stage:             sessionData.stage || 1,
+      student_id:         sessionData.studentId,
+      grade:              sessionData.grade,
+      task_type:          sessionData.taskType,
+      mode:               sessionData.mode,
+      unit_topic:         sessionData.unitTopic || null,
+      current_paragraph:  sessionData.paragraph || null,
+      stage:              sessionData.stage || 1,
       apprehension_flags: sessionData.apprehensionFlags || [],
-      session_log:       sessionData.sessionLog || [],
-      status:            "active"
+      session_log:        sessionData.sessionLog || [],
+      status:             "active"
     }])
     .select()
     .single();
-
   if (error) throw new Error(`Failed to create session: ${error.message}`);
   return data;
 }
 
 async function getSession(sessionId) {
+  if (MOCK_SUPABASE) return mockSession({ id: sessionId });
   const { data, error } = await supabase
     .from("writing_sessions")
     .select("*")
     .eq("id", sessionId)
     .single();
-
   if (error) throw new Error(`Failed to get session: ${error.message}`);
   return data;
 }
 
 async function updateSession(sessionId, updates) {
+  if (MOCK_SUPABASE) return { id: sessionId, ...updates };
   const { data, error } = await supabase
     .from("writing_sessions")
     .update(updates)
     .eq("id", sessionId)
     .select()
     .single();
-
   if (error) throw new Error(`Failed to update session: ${error.message}`);
   return data;
 }
 
 async function getConversationHistory(sessionId) {
+  if (MOCK_SUPABASE) return [];
   const { data, error } = await supabase
     .from("conversation_turns")
     .select("*")
     .eq("session_id", sessionId)
     .order("turn_number", { ascending: true });
-
   if (error) throw new Error(`Failed to get history: ${error.message}`);
   return data || [];
 }
 
 async function saveTurn(sessionId, turnNumber, role, turnType, content, extras = {}) {
+  if (MOCK_SUPABASE) {
+    return { id: `mock_turn_${turnNumber}`, session_id: sessionId,
+             turn_number: turnNumber, role, turn_type: turnType, content };
+  }
   const { data, error } = await supabase
     .from("conversation_turns")
     .insert([{
@@ -192,12 +196,12 @@ async function saveTurn(sessionId, turnNumber, role, turnType, content, extras =
     }])
     .select()
     .single();
-
   if (error) throw new Error(`Failed to save turn: ${error.message}`);
   return data;
 }
 
 async function updateLongTermPatterns(studentId, sessionLog, grade) {
+  if (MOCK_SUPABASE) return;
   for (const errorType of sessionLog) {
     const { error } = await supabase
       .from("student_error_patterns")
@@ -212,10 +216,7 @@ async function updateLongTermPatterns(studentId, sessionLog, grade) {
         onConflict: "student_id,error_type",
         ignoreDuplicates: false
       });
-
-    if (error) {
-      console.error(`Pattern update error for ${errorType}:`, error.message);
-    }
+    if (error) console.error(`Pattern update error for ${errorType}:`, error.message);
   }
 }
 
