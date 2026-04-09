@@ -66,6 +66,7 @@ export default function useConversation({
     if (!message.trim()) return
     setIsLoading(true)
     setError(null)
+    console.log('sendReply called, sessionId:', activeSessionId)
 
     onStudentMessage(message)
 
@@ -83,6 +84,7 @@ export default function useConversation({
         pendingErrors,
         disputedError
       })
+      console.log('sendReply response:', data)
 
       if (data.success) {
         setPendingErrors(data.data.socraticQuestions || [])
@@ -91,6 +93,7 @@ export default function useConversation({
         onNewTurn(data.data)
       }
     } catch (err) {
+      console.log('sendReply error:', err.response?.data || err.message)
       setError(err.response?.data?.error || 'Something went wrong. Please try again.')
     } finally {
       setIsLoading(false)
