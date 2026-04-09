@@ -27,7 +27,7 @@ export default function useConversation({
     setError(null)
 
     try {
-      const { data } = await axios.post('/api/conversation', {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/conversation`, {
         studentId,
         studentMessage: 'Here is my paragraph',
         currentParagraph: paragraph,
@@ -68,7 +68,7 @@ export default function useConversation({
     onStudentMessage(message)
 
     try {
-      const { data } = await axios.post('/api/conversation', {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/conversation`, {
         studentId,
         studentMessage: message,
         currentParagraph,
@@ -113,7 +113,7 @@ export default function useConversation({
     onStudentMessage(message)
 
     try {
-      const { data } = await axios.post('/api/conversation', {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/conversation`, {
         studentId,
         studentMessage: message,
         currentParagraph,
@@ -156,7 +156,7 @@ export default function useConversation({
     onStudentMessage(message)
 
     try {
-      const { data } = await axios.post('/api/conversation', {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/conversation`, {
         studentId,
         studentMessage: message,
         currentParagraph,
