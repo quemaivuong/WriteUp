@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import WritePage from './pages/WritePage'
@@ -48,7 +48,7 @@ export default function App() {
   }, [studentName])
 
   // ── Shared handlers ────────────────────────────────────────────
-  function handleNewTurn(systemResponse) {
+  const handleNewTurn = useCallback((systemResponse) => {
     setSessionId(systemResponse.sessionId)
 
     // Add system message to display history
@@ -64,6 +64,7 @@ export default function App() {
         stageComplete: systemResponse.stageComplete
       }
     ])
+    console.log('NEW TURN STORED:', systemResponse.systemMessage?.slice(0, 50))
 
     // Update pending errors — keep Socratic questions open
     if (systemResponse.socraticQuestions?.length > 0) {
@@ -78,7 +79,7 @@ export default function App() {
     }
 
     setDisputedError(null)
-  }
+  }, [])
 
   function handleStudentMessage(message) {
     setConversationHistory(prev => [
