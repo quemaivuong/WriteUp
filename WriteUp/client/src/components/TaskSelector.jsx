@@ -127,9 +127,11 @@ export default function TaskSelector({ grade, onSelect, disabled }) {
                 key={`${modeKey}-${u.unit}`}
                 onClick={() => onSelect({
                   mode: modeKey,
+                  type: modeKey,
                   unit: u.unit,
                   topic: u.topic,
-                  task: u.task
+                  task: u.task,
+                  title: u.task
                 })}
                 disabled={disabled}
                 style={{
