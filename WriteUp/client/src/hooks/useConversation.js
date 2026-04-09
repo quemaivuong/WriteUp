@@ -6,9 +6,11 @@ export default function useConversation({
   grade,
   apprehensionFlags,
   onNewTurn,
-  onStudentMessage
+  onStudentMessage,
+  externalSessionId
 }) {
   const [sessionId, setSessionId] = useState(null)
+  const activeSessionId = externalSessionId || sessionId
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [pendingErrors, setPendingErrors] = useState([])
@@ -77,7 +79,7 @@ export default function useConversation({
         mode,
         unitTopic,
         apprehensionFlags,
-        sessionId,
+        sessionId: activeSessionId,
         pendingErrors,
         disputedError
       })
@@ -122,7 +124,7 @@ export default function useConversation({
         mode,
         unitTopic,
         apprehensionFlags,
-        sessionId,
+        sessionId: activeSessionId,
         pendingErrors,
         disputedError: errorBeingDisputed || null
       })
@@ -165,7 +167,7 @@ export default function useConversation({
         mode,
         unitTopic,
         apprehensionFlags,
-        sessionId,
+        sessionId: activeSessionId,
         pendingErrors,
         disputedError: errorBeingKept || null
       })
