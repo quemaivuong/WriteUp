@@ -10,12 +10,12 @@ export default function useConversation({
   externalSessionId
 }) {
   const [sessionId, setSessionId] = useState(null)
-  const activeSessionId = externalSessionId || sessionId
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [pendingErrors, setPendingErrors] = useState([])
   const [disputedError, setDisputedError] = useState(null)
   const [stageComplete, setStageComplete] = useState(false)
+  const activeSessionId = externalSessionId || sessionId
 
   // ── Submit initial paragraph ───────────────────────────────────
   const submitParagraph = useCallback(async ({
@@ -98,7 +98,7 @@ export default function useConversation({
     } finally {
       setIsLoading(false)
     }
-  }, [studentId, grade, apprehensionFlags, sessionId,
+  }, [studentId, grade, apprehensionFlags, activeSessionId,
       pendingErrors, disputedError, onNewTurn, onStudentMessage])
 
   // ── Send pushback ──────────────────────────────────────────────
@@ -143,7 +143,7 @@ export default function useConversation({
     } finally {
       setIsLoading(false)
     }
-  }, [studentId, grade, apprehensionFlags, sessionId,
+  }, [studentId, grade, apprehensionFlags, activeSessionId,
       pendingErrors, disputedError, onNewTurn, onStudentMessage])
 
   // ── Keep original writing ──────────────────────────────────────
@@ -186,7 +186,7 @@ export default function useConversation({
     } finally {
       setIsLoading(false)
     }
-  }, [studentId, grade, apprehensionFlags, sessionId,
+  }, [studentId, grade, apprehensionFlags, activeSessionId,
       pendingErrors, onNewTurn, onStudentMessage])
 
   // ── Reset for new task ─────────────────────────────────────────
