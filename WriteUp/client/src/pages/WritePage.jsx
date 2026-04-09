@@ -283,16 +283,34 @@ export default function WritePage({
               </div>
             ) : (
               conversationHistory.map((turn, i) => (
-                <div key={i}>
+                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <DialogueBubble
                     role={turn.role}
-                    text={turn.text}
-                    isLoading={false}
+                    content={
+                      turn.content ||
+                      (turn.role === 'system' && turn.whatIsStrong) ||
+                      (turn.role === 'system' && turn.overallMessage) ||
+                      ''
+                    }
                   />
                   {turn.role === 'system' && (
                     <>
-                      <FeedbackCard errors={turn.errors} />
-                      <SocraticCard questions={turn.socraticQuestions} />
+                      {turn.directFeedback?.length > 0 && (
+                        <FeedbackCard errors={turn.directFeedback} />
+                      )}
+                      {turn.socraticQuestions?.length > 0 && (
+                        <SocraticCard questions={turn.socraticQuestions} />
+                      )}
+                      {turn.invitation && (
+                        <div style={{
+                          fontSize: '13px',
+                          color: 'var(--ink2)',
+                          fontStyle: 'italic',
+                          padding: '4px 0'
+                        }}>
+                          {turn.invitation}
+                        </div>
+                      )}
                     </>
                   )}
                 </div>
