@@ -11,8 +11,8 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' })
 })
 app.use("/api", require("./routes"));
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`WriteUp server running on port ${PORT}`);
-});
+const PORT = process.env.PORT || 3000
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`WriteUp server running on port ${PORT}`)
+})
 module.exports = app;
