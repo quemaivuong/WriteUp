@@ -22,14 +22,14 @@ const {
 
 const router = express.Router();
 
-const httpsAgent = new HttpsProxyAgent({
-  proxy: process.env.HTTPS_PROXY || process.env.HTTP_PROXY
-});
-
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
-  httpAgent: httpsAgent
-});
+  ...(process.env.HTTPS_PROXY ? {
+    httpAgent: new HttpsProxyAgent({
+      proxy: process.env.HTTPS_PROXY
+    })
+  } : {})
+})
 
 async function callClaude(systemPrompt, userPrompt) {
   const response = await client.messages.create({

@@ -17,13 +17,14 @@ const {
   processGrade6FeedbackResponse
 } = require("../lib/feedbackPrompt");
 const router = express.Router();
-const proxyAgent = process.env.HTTPS_PROXY
-  ? new HttpsProxyAgent({ proxy: process.env.HTTPS_PROXY })
-  : undefined;
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
-  ...(proxyAgent && { httpAgent: proxyAgent })
-});
+  ...(process.env.HTTPS_PROXY ? {
+    httpAgent: new HttpsProxyAgent({
+      proxy: process.env.HTTPS_PROXY
+    })
+  } : {})
+})
 // ── HELPER ────────────────────────────────────────────────────────
 // Calls Claude and parses the JSON response.
 // All our prompts return strict JSON — this handles the parsing
