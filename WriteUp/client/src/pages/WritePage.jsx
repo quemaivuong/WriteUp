@@ -70,7 +70,8 @@ export default function WritePage({
     grade,
     apprehensionFlags,
     onNewTurn: handleNewTurn,
-    onStudentMessage: handleStudentMessage
+    onStudentMessage: handleStudentMessage,
+    externalSessionId: sessionId
   })
 
   // Scroll to bottom of dialogue on new messages
