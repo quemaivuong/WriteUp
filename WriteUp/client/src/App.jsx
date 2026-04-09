@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import WritePage from './pages/WritePage'
@@ -48,7 +48,7 @@ export default function App() {
   }, [studentName])
 
   // ── Shared handlers ────────────────────────────────────────────
-  const handleNewTurn = useCallback((systemResponse) => {
+  function handleNewTurn(systemResponse) {
     setSessionId(systemResponse.sessionId)
 
     // Add system message to display history
@@ -79,7 +79,7 @@ export default function App() {
     }
 
     setDisputedError(null)
-  }, [])
+  }
 
   function handleStudentMessage(message) {
     setConversationHistory(prev => [
