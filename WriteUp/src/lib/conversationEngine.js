@@ -674,6 +674,7 @@ async function processConversationTurn({
   if (parsed.invitation)      systemMessageText += parsed.invitation;
   if (parsed.student_choice)  systemMessageText += "\n\n" + parsed.student_choice;
   systemMessageText = systemMessageText.trim();
+  console.log('TRIMMED MESSAGE:', systemMessageText);
 
   let responseTrack = "direct";
   if (parsed.socratic_questions && parsed.socratic_questions.length > 0) {
@@ -750,6 +751,7 @@ async function processConversationTurn({
     };
   });
 
+  console.log('SYSTEM MESSAGE TEXT:', systemMessageText);
   return {
     sessionId:             session.id,
     turnType,
