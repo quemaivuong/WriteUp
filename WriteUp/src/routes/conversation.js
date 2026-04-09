@@ -17,14 +17,14 @@ const { GRADE_8 } = require("../lib/grade8Data");
 
 const router = express.Router();
 
-const httpsAgent = new HttpsProxyAgent({
-  proxy: process.env.HTTPS_PROXY || process.env.HTTP_PROXY
-});
-
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
-  httpAgent: httpsAgent
-});
+  ...(process.env.HTTPS_PROXY ? {
+    httpAgent: new HttpsProxyAgent({
+      proxy: process.env.HTTPS_PROXY
+    })
+  } : {})
+})
 
 // ── GRADE BAND DATA RESOLVER ─────────────────────────────────────
 // Returns the correct grade band data object for a given grade.
