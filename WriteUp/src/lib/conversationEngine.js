@@ -651,6 +651,7 @@ async function processConversationTurn({
   let parsed;
   try {
     parsed = JSON.parse(raw);
+    console.log('PARSED RESPONSE:', JSON.stringify(parsed, null, 2));
   } catch (e) {
     console.error("Claude response was not valid JSON:", raw);
     throw new Error("Invalid response format from Claude");
