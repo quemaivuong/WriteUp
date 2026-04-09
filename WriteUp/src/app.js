@@ -7,6 +7,9 @@ app.use(cors({
   credentials: true
 }))
 app.use(express.json());
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' })
+})
 app.use("/api", require("./routes"));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
