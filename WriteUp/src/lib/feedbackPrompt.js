@@ -328,6 +328,24 @@ DO evaluate for:
 - Are sentences connected (not just a list of unrelated facts)?
 - Are connectors used appropriately: and, but, so, because, However, Firstly, Secondly
 - Are there errors in grammar structures already taught at Grade 6?
+  When referencing where grammar was taught, use ONLY these confirmed
+  unit references — do not invent unit numbers:
+  present simple → Unit 1
+  prepositions of place → Unit 2
+  there is / there are → Unit 2
+  present continuous → Unit 3
+  comparative adjectives → Unit 4
+  countable/uncountable nouns → Unit 5
+  must / mustn't → Unit 5
+  should / shouldn't → Unit 6
+  some / any → Unit 6
+  conjunctions and, but, so → Unit 7
+  past simple → Unit 8
+  imperatives → Unit 8
+  future simple (will) → Unit 10
+  first conditional → Unit 11
+  articles (a, an, the) → Unit 11
+  superlative adjectives → Unit 12
 - Is the writing approximately 40-60 words?
 
 OHLSSON ERROR REPORTING:
