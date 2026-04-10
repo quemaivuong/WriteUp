@@ -10,12 +10,17 @@ const { processSessionPatterns } = require("./patternTracker");
 // All parameters confirmed from textbook writing pages and glossary
 const GRADE_6 = {
   cefr: "A1",
+  cefr_note: "A1 per Ministry curriculum. Both volumes (Tập Một Units 1–6, Tập Hai Units 7–12).",
   wordCount: "40–60 words",
-  // Writing modes — which units trigger which feedback mode
+  wordCountRange: { min: 40, max: 60 },
+
   modes: {
     descriptive: {
-      units: "1–10",
-      description: "Guided question answers assembled into a paragraph using sentence frames. No argument structure required.",
+      units: "1–3, 5, 7–10, 12",
+      description:
+        "Guided question answers assembled into a paragraph, email, " +
+        "diary entry, or postcard using sentence frames. " +
+        "No argument structure required.",
       taskTypes: [
         "descriptive paragraph",
         "informal email",
@@ -24,33 +29,71 @@ const GRADE_6 = {
       ]
     },
     emergingOpinion: {
-      units: "11–12",
-      description: "First appearance of structured opinion writing. Uses 'I think... Firstly... Secondly...' with explanation or example. No evidence-analysis link required yet.",
-      taskTypes: [
-        "opinion paragraph with explanation"
-      ]
+      units: "4, 6, 11",
+      description:
+        "First structured opinion writing. Uses 'I think... Firstly... Secondly...' " +
+        "with explanation or example. No evidence-analysis link required yet.",
+      taskTypes: ["opinion paragraph with explanation"]
     }
   },
-  // Confirmed from textbook writing pages only
+
+  unitTasks: {
+    1:  { topic: "My New School",                  task: "Write a paragraph about your school",                                          mode: "descriptive",       format: "paragraph",   starter: "My school is",                                        wordCount: { min: 40, max: 50 } },
+    2:  { topic: "My House",                        task: "Write an email to a pen friend about your house",                              mode: "descriptive",       format: "email",       starter: "Hi Mira,\nThanks for your email. Now I'll tell you about my house.", wordCount: { min: 40, max: 50 } },
+    3:  { topic: "My Friends",                      task: "Write a diary entry about your best friend",                                   mode: "descriptive",       format: "diary",       starter: "Dear Diary,\nMy best friend is",                      wordCount: { target: 50 } },
+    4:  { topic: "My Neighbourhood",                task: "Write a paragraph about your neighbourhood saying what you like and dislike",  mode: "emergingOpinion",   format: "paragraph",   starter: "I live in ___. There are many things I like about my neighbourhood.", wordCount: { target: 50 } },
+    5:  { topic: "Natural Wonders of Viet Nam",     task: "Write a paragraph about a travel attraction",                                  mode: "descriptive",       format: "paragraph",   starter: "I am writing about ___. It is in",                    wordCount: { target: 50 } },
+    6:  { topic: "Our Tet Holiday",                 task: "Write an email about what children should and shouldn't do at Tet",            mode: "emergingOpinion",   format: "email",       starter: "Dear Tom,\nTet is coming. I will tell you more about our Tet.", wordCount: { target: 50 } },
+    7:  { topic: "Television",                      task: "Write a paragraph about your TV-viewing habits",                               mode: "descriptive",       format: "paragraph",   starter: null,                                                  wordCount: { target: 50 } },
+    8:  { topic: "Sports and Games",                task: "Write a paragraph about a sport or game you like",                             mode: "descriptive",       format: "paragraph",   starter: null,                                                  wordCount: { min: 40, max: 50 } },
+    9:  { topic: "Cities of the World",             task: "Write a postcard about your holiday in a city",                                mode: "descriptive",       format: "postcard",    starter: "Dear Mum and Dad,",                                   wordCount: { target: 50 } },
+    10: { topic: "Our Houses in the Future",        task: "Write a paragraph about your dream house",                                     mode: "descriptive",       format: "paragraph",   starter: "My dream house is a big palace. It is in the mountains.", wordCount: { target: 50 } },
+    11: { topic: "Our Greener World",               task: "Write a paragraph about your classmate's ideas for the 3Rs Club president",   mode: "emergingOpinion",   format: "paragraph",   starter: "My classmate is ___. If ___ becomes the president of the 3Rs Club, ___ will do two things. Firstly,", wordCount: { target: 50 } },
+    12: { topic: "Robots",                          task: "Write a paragraph about a robot you would like to have",                       mode: "descriptive",       format: "paragraph",   starter: "My robot's name is ___. It is a ___.",                wordCount: { min: 50, max: 60 } }
+  },
+
   sentenceFrames: [
+    // Unit 1
     "My school is __________.",
-    "I live in __________. There are many / some things I like about my neighbourhood.",
-    "However, there are some / many things I dislike about it.",
-    "I am writing about __________. It is in __________.",
+    "It has [number] classes / buildings / [facilities].",
+    "I like my school because __________.",
+    // Unit 2
+    "I live in a [type] house / flat.",
+    "There is / There are [furniture/rooms] in my house.",
+    "My favourite room is the [room] because __________.",
+    // Unit 3
+    "My best friend is [name].",
+    "He / She has [hair/eyes description].",
+    "I like him / her because __________.",
+    // Unit 4
+    "I live in __________.",
+    "There are many things I like about my neighbourhood.",
+    "However, there are some things I dislike.",
+    // Unit 5
+    "I am writing about __________.",
+    "It is in __________. It is famous for __________.",
+    "You can __________ there.",
+    // Unit 6
+    "At Tet, we should __________.",
+    "We shouldn't __________.",
+    // Unit 9
+    "Dear Mum and Dad, [City] is __________!",
+    // Unit 10
     "My dream house is __________. It is in __________.",
+    // Unit 11
     "I think we can do many things to improve __________ around us. Firstly, __________.",
-    "My robot's name is __________. It is a __________.",
-    "Dear Diary, My best friend is __________. I like __________ because __________.",
-    "Dear __________, Thanks for your email. Now I'll tell you about my house."
+    "My classmate is ___. If ___ becomes the president of the 3Rs Club, ___ will do two things. Firstly,",
+    // Unit 12
+    "My robot's name is __________. It is a __________."
   ],
-  // Confirmed from Unit 3, 4, 7, 11 writing models and grammar focus
+
   connectors: {
     coordinating: ["and", "but", "so"],
-    contrast: ["However"],
-    sequence: ["Firstly", "Secondly"],
-    reason: ["because"]
+    contrast:     ["However"],
+    sequence:     ["Firstly", "Secondly"],
+    reason:       ["because"]
   },
-  // Confirmed from Language Focus column across all 12 units
+
   grammarTaught: [
     "present simple",
     "adverbs of frequency (always, usually, sometimes, never)",
@@ -73,7 +116,23 @@ const GRADE_6 = {
     "first conditional",
     "superlative adjectives (short adjectives)"
   ],
-  // Confirmed from glossary and unit vocabulary sections
+
+  // Grammar taught by unit — for accurate textbook references
+  grammarByUnit: {
+    1:  ["present simple", "adverbs of frequency"],
+    2:  ["possessive case", "prepositions of place", "there is / there are"],
+    3:  ["present continuous", "personality adjectives"],
+    4:  ["comparative adjectives", "prepositions of place"],
+    5:  ["countable and uncountable nouns", "must / mustn't"],
+    6:  ["should / shouldn't", "some / any"],
+    7:  ["wh-questions", "conjunctions: and, but, so"],
+    8:  ["past simple", "imperatives"],
+    9:  ["possessive adjectives", "possessive pronouns"],
+    10: ["future simple (will)", "might for possibility"],
+    11: ["articles (a/an/the)", "first conditional"],
+    12: ["superlative adjectives"]
+  },
+
   vocabularyTopics: [
     "school activities and things",
     "types of house, rooms and furniture",
@@ -88,7 +147,7 @@ const GRADE_6 = {
     "environment and recycling",
     "robots and daily activities"
   ],
-  // What this grade does NOT do — important for not over-correcting
+
   notExpected: [
     "argumentative writing",
     "evidence or citation",
@@ -98,17 +157,23 @@ const GRADE_6 = {
     "academic vocabulary",
     "complex sentence structures beyond first conditional"
   ],
-  // From Unit 11 Study Skill box — the only explicit writing instruction in the book
+
   studySkill: {
     unit: 11,
-    instruction: "Giving explanations and/or examples is an important writing skill. You should give explanations and/or examples to support your ideas.",
-    example: "Secondly, I'll organise some book fairs. At these events students can exchange their used books."
+    instruction:
+      "Giving explanations and/or examples is an important writing skill. " +
+      "You should give explanations and/or examples to support your ideas.",
+    example:
+      "Secondly, I'll organise some book fairs. " +
+      "At these events students can exchange their used books."
   },
-  // Tone calibration for this grade
+
   feedbackTone: {
     maxCorrections: 2,
     priority: "encouragement first — always acknowledge effort before any suggestion",
-    approach: "never correct grammar not yet taught. Only flag errors in structures from grammarTaught list above."
+    approach:
+      "Never correct grammar not yet taught. " +
+      "Only flag errors in structures from grammarTaught list above."
   }
 };
 // ── APPREHENSION PROFILE (Daly, 1979) ────────────────────────────
