@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import TaskSelector from '../components/TaskSelector'
 import WritingArea from '../components/WritingArea'
 import ActionButtons from '../components/ActionButtons'
@@ -9,62 +9,24 @@ import StudentReplyInput from '../components/StudentReplyInput'
 import useConversation from '../hooks/useConversation'
 
 const WORD_TARGETS = {
-  6: '50–80',
-  7: '60–80',
-  8: '80–100',
-  9: '100–120',
-  10: '120–150',
-  11: '120–150',
-  12: '150–200'
+  6: '40–60', 7: '~70', 8: '80–100',
+  9: '80–100', 10: '100–120', 11: '120–150', 12: '150–200'
 }
 
 export default function WritePage({
-  studentId,
-  grade,
-  studentName,
-  apprehensionFlags,
-  onDraftSubmitted,
-  onNewSession
+  studentId, grade, setGrade, studentName, setStudentName,
+  sessionId, conversationHistory, apprehensionFlags,
+  handleNewTurn, handleStudentMessage,
+  handleDraftSubmitted, handleNewSession
 }) {
   const [selectedTask, setSelectedTask] = useState(null)
   const [paragraph, setParagraph] = useState('')
-  const [conversationHistory, setConversationHistory] = useState([])
-  const [stageComplete, setStageComplete] = useState(false)
   const [draftShared, setDraftShared] = useState(false)
-
   const dialogueEndRef = useRef(null)
 
-  const handleNewTurn = useCallback((data) => {
-    setConversationHistory(prev => [
-      ...prev,
-      {
-        role: 'system',
-        text: data.systemMessageText,
-        errors: data.errors || [],
-        socraticQuestions: data.socraticQuestions || [],
-        stageComplete: data.stageComplete || false
-      }
-    ])
-    setStageComplete(data.stageComplete || false)
-  }, [])
-
-  const handleStudentMessage = useCallback((message) => {
-    setConversationHistory(prev => [
-      ...prev,
-      { role: 'student', text: message }
-    ])
-  }, [])
-
   const {
-    sessionId,
-    isLoading,
-    error,
-    pendingErrors,
-    submitParagraph,
-    sendReply,
-    sendPushback,
-    keepOriginal,
-    reset
+    isLoading, error, pendingErrors, stageComplete,
+    submitParagraph, sendReply, sendPushback, keepOriginal, reset
   } = useConversation({
     studentId,
     grade,
@@ -74,289 +36,244 @@ export default function WritePage({
     externalSessionId: sessionId
   })
 
-  // Scroll to bottom of dialogue on new messages
   useEffect(() => {
     dialogueEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [conversationHistory])
+  }, [conversationHistory, isLoading])
 
   function handleTaskSelect(task) {
     setSelectedTask(task)
     setParagraph('')
-    setConversationHistory([])
-    setStageComplete(false)
-    setDraftShared(false)
     reset()
+    handleNewSession()
+    setDraftShared(false)
   }
 
-  async function handleSubmit() {
+  function handleSubmit() {
     if (!selectedTask || !paragraph.trim()) return
-    await submitParagraph({
+    submitParagraph({
       paragraph,
-      taskType: selectedTask.type,
+      taskType: selectedTask.task,
       mode: selectedTask.mode,
       unitTopic: selectedTask.topic
     })
   }
 
-  async function handleReply(message) {
-    if (!selectedTask) return
-    await sendReply({
+  function handleReply(message) {
+    sendReply({
       message,
       currentParagraph: paragraph,
-      taskType: selectedTask.type,
-      mode: selectedTask.mode,
-      unitTopic: selectedTask.topic
+      taskType: selectedTask?.task,
+      mode: selectedTask?.mode,
+      unitTopic: selectedTask?.topic
     })
   }
 
-  async function handlePushback(message, errorBeingDisputed) {
-    if (!selectedTask) return
-    await sendPushback({
+  function handlePushback(message) {
+    sendPushback({
       message,
       currentParagraph: paragraph,
-      taskType: selectedTask.type,
-      mode: selectedTask.mode,
-      unitTopic: selectedTask.topic,
-      errorBeingDisputed
+      taskType: selectedTask?.task,
+      mode: selectedTask?.mode,
+      unitTopic: selectedTask?.topic,
+      errorBeingDisputed: pendingErrors[0] || null
     })
   }
 
-  async function handleKeep(errorBeingKept) {
-    if (!selectedTask) return
-    await keepOriginal({
+  function handleKeep() {
+    keepOriginal({
       currentParagraph: paragraph,
-      taskType: selectedTask.type,
-      mode: selectedTask.mode,
-      unitTopic: selectedTask.topic,
-      errorBeingKept
+      taskType: selectedTask?.task,
+      mode: selectedTask?.mode,
+      unitTopic: selectedTask?.topic,
+      errorBeingKept: pendingErrors[0] || null
     })
   }
 
   function handleShare() {
     setDraftShared(true)
-    onDraftSubmitted && onDraftSubmitted({
-      paragraph,
-      task: selectedTask,
-      sessionId
-    })
+    handleDraftSubmitted()
   }
 
   function handleNewTask() {
     setSelectedTask(null)
     setParagraph('')
-    setConversationHistory([])
-    setStageComplete(false)
-    setDraftShared(false)
     reset()
-    onNewSession && onNewSession()
+    handleNewSession()
+    setDraftShared(false)
   }
 
-  const hasSession = conversationHistory.length > 0
-  const lastSystemTurn = [...conversationHistory].reverse().find(t => t.role === 'system')
-  const showReplyInput = hasSession && !stageComplete
-  const showKeepOption = showReplyInput && pendingErrors.length > 0
-  const showPushbackOption = showReplyInput && pendingErrors.length > 0
+  const hasConversation = conversationHistory.length > 0
+  const wordTarget = WORD_TARGETS[grade]
 
   return (
-    <div style={{
+    <main style={{
+      maxWidth: '1100px', margin: '0 auto', padding: '24px 22px',
       display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '24px',
-      padding: '24px',
-      maxWidth: '1200px',
-      margin: '0 auto',
-      alignItems: 'start'
+      gridTemplateColumns: selectedTask ? '1fr 420px' : '1fr',
+      gap: '24px', alignItems: 'start'
     }}>
-      {/* ── Left panel: writing area ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
+      {/* ── LEFT PANEL ── */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+        {/* Name + grade row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{ fontSize: '13px', color: 'var(--ink3)', fontWeight: 500 }}>Name</label>
+            <input
+              value={studentName}
+              onChange={e => setStudentName(e.target.value)}
+              className="input"
+              style={{ width: '160px', padding: '6px 10px', fontSize: '13px' }}
+            />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{ fontSize: '13px', color: 'var(--ink3)', fontWeight: 500 }}>Grade</label>
+            <select
+              value={grade}
+              onChange={e => { setGrade(parseInt(e.target.value)); handleNewTask() }}
+              className="select" style={{ fontSize: '13px' }}
+            >
+              {[6,7,8,9,10,11,12].map(g => (
+                <option key={g} value={g}>Grade {g}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Task selector or writing area */}
         {!selectedTask ? (
           <div className="card">
-            <div className="card-header">
-              <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>
-                Choose a writing task
-              </h2>
-            </div>
+            <div className="card-header">Choose a writing task — Grade {grade}</div>
             <div className="card-body">
-              <TaskSelector
-                grade={grade}
-                onSelect={handleTaskSelect}
-              />
+              <TaskSelector grade={grade} onSelect={handleTaskSelect} disabled={false} />
             </div>
           </div>
         ) : (
-          <>
-            <div className="card">
-              <div className="card-header" style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
-                <div>
-                  <div style={{ fontSize: '11px', color: 'var(--ink3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '2px' }}>
-                    {selectedTask.mode} · {selectedTask.topic}
-                  </div>
-                  <h2 style={{ margin: 0, fontSize: '15px', fontWeight: 600 }}>
-                    {selectedTask.title}
-                  </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--teal)', marginBottom: '2px' }}>
+                  Unit {selectedTask.unit} — {selectedTask.topic}
                 </div>
-                <button
-                  onClick={() => setSelectedTask(null)}
-                  className="btn btn-ghost btn-sm"
-                  style={{ flexShrink: 0 }}
-                >
-                  Change task
-                </button>
+                <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)' }}>
+                  {selectedTask.task}
+                </div>
               </div>
-              <div className="card-body">
-                {selectedTask.prompt && (
-                  <p style={{
-                    margin: '0 0 12px',
-                    fontSize: '13px',
-                    color: 'var(--ink2)',
-                    lineHeight: '1.7',
-                    background: 'var(--paper2)',
-                    padding: '10px 14px',
-                    borderRadius: '8px'
-                  }}>
-                    {selectedTask.prompt}
-                  </p>
-                )}
-                <WritingArea
-                  value={paragraph}
-                  onChange={setParagraph}
-                  disabled={isLoading}
-                  wordTarget={WORD_TARGETS[grade] || '80–100'}
-                  placeholder={`Write your ${selectedTask.mode} paragraph here…`}
-                />
-              </div>
+              <button onClick={handleNewTask} className="btn btn-ghost btn-sm" style={{ flexShrink: 0 }}>
+                ← Change task
+              </button>
             </div>
+
+            <WritingArea
+              value={paragraph}
+              onChange={setParagraph}
+              placeholder={`Start writing here… (target: ${wordTarget} words)`}
+              wordTarget={wordTarget}
+              disabled={isLoading}
+            />
+
+            {error && (
+              <div style={{
+                padding: '10px 14px', background: 'var(--coral-light)',
+                border: '1px solid rgba(201,83,58,0.2)',
+                borderRadius: '8px', fontSize: '13px', color: 'var(--coral)'
+              }}>
+                {error}
+              </div>
+            )}
 
             <ActionButtons
               onSubmitParagraph={handleSubmit}
               onShareDraft={handleShare}
               onNewTask={handleNewTask}
-              canSubmit={paragraph.trim().length > 0 && !!selectedTask}
+              canSubmit={paragraph.trim().length > 20 && !isLoading}
               canShare={stageComplete && !draftShared}
               isLoading={isLoading}
             />
 
-            {error && (
+            {draftShared && (
               <div style={{
-                padding: '10px 14px',
-                background: 'rgba(201,83,58,0.08)',
-                border: '1px solid rgba(201,83,58,0.2)',
-                borderRadius: '8px',
-                fontSize: '13px',
-                color: 'var(--coral)'
+                padding: '10px 14px', background: 'var(--green-light)',
+                border: '1px solid rgba(58,122,74,0.2)',
+                borderRadius: '8px', fontSize: '13px', color: 'var(--green)'
               }}>
-                {error}
+                ✓ Draft shared. Head to Peer Workshop to review a classmate's work.
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
 
-      {/* ── Right panel: dialogue ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <div className="card" style={{ position: 'sticky', top: '80px' }}>
-          <div className="card-header">
-            <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>
-              Feedback dialogue
-            </h2>
-          </div>
-          <div className="card-body" style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px',
-            maxHeight: '65vh',
-            overflowY: 'auto'
-          }}>
-            {conversationHistory.length === 0 ? (
-              <div className="empty-state">
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>✍️</div>
-                <p style={{ margin: 0, fontSize: '14px', color: 'var(--ink3)' }}>
-                  {selectedTask
-                    ? 'Write your paragraph and click Get Feedback to start.'
-                    : 'Select a task on the left to begin.'}
-                </p>
-              </div>
-            ) : (
-              conversationHistory.map((turn, i) => (
+      {/* ── RIGHT PANEL — Dialogue ── */}
+      {selectedTask && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="card" style={{ position: 'sticky', top: '72px' }}>
+            <div className="card-header">
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--teal)' }} />
+              WriteUp — AI Writing Coach
+            </div>
+
+            <div style={{
+              padding: '16px', display: 'flex', flexDirection: 'column',
+              gap: '16px', maxHeight: '420px', overflowY: 'auto'
+            }}>
+              {conversationHistory.length === 0 && !isLoading && (
+                <div className="empty-state" style={{ padding: '24px' }}>
+                  <div style={{ fontSize: '28px', marginBottom: '8px' }}>✍️</div>
+                  <div style={{ fontSize: '14px', color: 'var(--ink3)' }}>
+                    Write your paragraph and click "Get Feedback" to start the dialogue.
+                  </div>
+                </div>
+              )}
+
+              {conversationHistory.map((turn, i) => (
                 <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <DialogueBubble
-                    role={turn.role}
-                    content={
-                      turn.content ||
-                      (turn.role === 'system' && turn.whatIsStrong) ||
-                      (turn.role === 'system' && turn.overallMessage) ||
-                      ''
-                    }
-                  />
+                  <DialogueBubble role={turn.role} content={turn.content} />
                   {turn.role === 'system' && (
                     <>
-                      {turn.directFeedback?.length > 0 && (
-                        <FeedbackCard errors={turn.directFeedback} />
-                      )}
-                      {turn.socraticQuestions?.length > 0 && (
-                        <SocraticCard questions={turn.socraticQuestions} />
-                      )}
+                      <FeedbackCard errors={turn.directFeedback} />
+                      <SocraticCard questions={turn.socraticQuestions} />
                       {turn.invitation && (
-                        <div style={{
-                          fontSize: '13px',
-                          color: 'var(--ink2)',
-                          fontStyle: 'italic',
-                          padding: '4px 0'
-                        }}>
+                        <div style={{ fontSize: '13px', color: 'var(--ink2)', fontStyle: 'italic', padding: '4px 0' }}>
                           {turn.invitation}
                         </div>
                       )}
                     </>
                   )}
                 </div>
-              ))
+              ))}
+
+              {isLoading && <DialogueBubble role="system" isLoading />}
+              <div ref={dialogueEndRef} />
+            </div>
+
+            {hasConversation && !isLoading && !stageComplete && (
+              <div style={{ padding: '12px 16px', borderTop: '1px solid var(--line)' }}>
+                <StudentReplyInput
+                  onSend={handleReply}
+                  onKeep={handleKeep}
+                  onPushback={handlePushback}
+                  disabled={isLoading}
+                  placeholder="Respond to the feedback… (Cmd+Enter to send)"
+                  showKeepOption={pendingErrors.length > 0}
+                  showPushbackOption={pendingErrors.length > 0}
+                />
+              </div>
             )}
 
-            {isLoading && conversationHistory.length > 0 && (
-              <DialogueBubble role="system" text="" isLoading={true} />
+            {stageComplete && (
+              <div style={{
+                padding: '14px 16px', borderTop: '1px solid var(--line)',
+                background: 'var(--green-light)', fontSize: '13px',
+                color: 'var(--green)', fontWeight: 500
+              }}>
+                ✓ Feedback complete. Share your draft to unlock peer review.
+              </div>
             )}
-
-            <div ref={dialogueEndRef} />
           </div>
-
-          {showReplyInput && (
-            <div style={{
-              padding: '12px 16px',
-              borderTop: '1px solid var(--line)'
-            }}>
-              <StudentReplyInput
-                onSend={handleReply}
-                onKeep={() => handleKeep(pendingErrors[0])}
-                onPushback={(msg) => handlePushback(msg, pendingErrors[0])}
-                disabled={isLoading}
-                showKeepOption={showKeepOption}
-                showPushbackOption={showPushbackOption}
-                placeholder="Respond to the feedback… (Cmd+Enter to send)"
-              />
-            </div>
-          )}
-
-          {stageComplete && (
-            <div style={{
-              padding: '12px 16px',
-              borderTop: '1px solid var(--line)',
-              background: 'rgba(42,157,143,0.06)',
-              borderRadius: '0 0 12px 12px',
-              textAlign: 'center',
-              fontSize: '13px',
-              color: 'var(--teal-dark)',
-              fontWeight: 500
-            }}>
-              Great work! Your paragraph is ready.{!draftShared && ' Share it with the class or start a new task.'}
-            </div>
-          )}
         </div>
-      </div>
-    </div>
+      )}
+    </main>
   )
 }
