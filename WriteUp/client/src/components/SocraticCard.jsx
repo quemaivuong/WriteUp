@@ -35,6 +35,23 @@ export default function SocraticCard({ questions }) {
             }}>
               {q.question}
             </div>
+            {q.options && q.options.length > 0 && (
+              <div style={{ marginTop: '10px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {q.options.map((opt, j) => (
+                  <span key={j} style={{
+                    fontSize: '12px',
+                    padding: '4px 12px',
+                    borderRadius: '99px',
+                    background: 'rgba(184,125,42,0.12)',
+                    color: 'var(--amber)',
+                    border: '1px solid rgba(184,125,42,0.25)',
+                    cursor: 'default'
+                  }}>
+                    {opt}
+                  </span>
+                ))}
+              </div>
+            )}
             {q.attribution && (
               <div style={{
                 marginTop: '8px',
