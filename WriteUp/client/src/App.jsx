@@ -5,10 +5,10 @@ import WritePage from './pages/WritePage'
 import PeerPage from './pages/PeerPage'
 import './styles/global.css'
 import './styles/components.css'
-import '@fontsource/dm-sans/400.css'
-import '@fontsource/dm-sans/500.css'
-import '@fontsource/lora/400.css'
-import '@fontsource/lora/600.css'
+// import '@fontsource/dm-sans/400.css'
+// import '@fontsource/dm-sans/500.css'
+// import '@fontsource/lora/400.css'
+// import '@fontsource/lora/600.css'
 
 // ── Generate or retrieve persistent student ID ───────────────────
 function getOrCreateStudentId() {
