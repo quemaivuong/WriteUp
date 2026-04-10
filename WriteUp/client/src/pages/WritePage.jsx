@@ -234,6 +234,22 @@ export default function WritePage({
                     <>
                       <FeedbackCard errors={turn.directFeedback} />
                       <SocraticCard questions={turn.socraticQuestions} />
+                      {turn.options && turn.options.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+                          {turn.options.map((opt, j) => (
+                            <span key={j} style={{
+                              fontSize: '12px',
+                              padding: '4px 12px',
+                              borderRadius: '99px',
+                              background: 'rgba(184,125,42,0.12)',
+                              color: 'var(--amber)',
+                              border: '1px solid rgba(184,125,42,0.25)'
+                            }}>
+                              {opt}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       {turn.invitation && (
                         <div style={{ fontSize: '13px', color: 'var(--ink2)', fontStyle: 'italic', padding: '4px 0' }}>
                           {turn.invitation}
