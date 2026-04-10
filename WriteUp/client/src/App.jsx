@@ -61,7 +61,8 @@ export default function App() {
         directFeedback: systemResponse.directFeedback,
         socraticQuestions: systemResponse.socraticQuestions,
         invitation: systemResponse.invitation,
-        stageComplete: systemResponse.stageComplete
+        stageComplete: systemResponse.stageComplete,
+        options: systemResponse.options || []
       }
     ])
     console.log('NEW TURN STORED:', systemResponse.systemMessage?.slice(0, 50))
