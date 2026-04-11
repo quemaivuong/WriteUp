@@ -103,6 +103,12 @@ export default function App() {
     setSelfCheckDone(false)
   }
 
+  function handleClearHistory() {
+    setConversationHistory([])
+    setPendingErrors([])
+    setDisputedError(null)
+  }
+
   const sharedProps = {
     studentId,
     grade,
@@ -122,7 +128,8 @@ export default function App() {
     handleNewTurn,
     handleStudentMessage,
     handleDraftSubmitted,
-    handleNewSession
+    handleNewSession,
+    handleClearHistory
   }
 
   return (

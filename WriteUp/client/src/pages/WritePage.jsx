@@ -18,7 +18,7 @@ export default function WritePage({
   studentId, grade, setGrade, studentName, setStudentName,
   sessionId, conversationHistory, apprehensionFlags,
   handleNewTurn, handleStudentMessage,
-  handleDraftSubmitted, handleNewSession
+  handleDraftSubmitted, handleNewSession, handleClearHistory
 }) {
   const [selectedTask, setSelectedTask] = useState(null)
   const [paragraph, setParagraph] = useState('')
@@ -114,6 +114,10 @@ export default function WritePage({
       return
     }
 
+    // If this is a rewrite confirmation, clear history first
+    if (message.startsWith('I will rewrite my paragraph')) {
+      handleClearHistory()
+    }
     sendReply({
       message,
       currentParagraph: paragraph,
