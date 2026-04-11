@@ -5,8 +5,8 @@ function ErrorCard({ error, index, onAction, disabled }) {
   const [activeAction, setActiveAction] = useState(null)
 
   function handleFixThis() {
-    const prefill = `I want to fix "${error.surface}" — ${error.message?.split('.')[0]}.`
-    setReplyText(prefill)
+    const prefill = `I will fix this: "${error.surface}" → "${error.message?.match(/Correction[:\s]+["']?([^"'.]+)/i)?.[1] || 'corrected version'}"`
+    setReplyText(`I want to revise "${error.surface}". `)
     setActiveAction('fix')
   }
 
