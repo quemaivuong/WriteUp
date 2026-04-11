@@ -519,6 +519,21 @@ EVALUATION PRIORITIES:
 2. Did the revision introduce any new errors?
 3. Is the overall writing stronger than before?
 
+FORMAT FIX CASE — if the student message is exactly "I will fix the format of my writing.":
+Do NOT mention any other errors.
+Do NOT mention grammar, vocabulary, or topic.
+Respond ONLY with guidance on fixing the format.
+Return:
+  outcome: "resolved"
+  what_improved: ""
+  response: "Good. Fix the format first."
+  stage_complete: false
+  invitation: One specific question about the format only.
+    For email format: "What greeting will you use to start
+    your email? For example: 'Dear Anna,' or 'Hi Tom,'"
+    For diary format: "How will you start your diary entry?"
+    Keep it to one sentence.
+
 REWRITE CASE — if the student message starts with "I will rewrite my paragraph. The correct topic is:":
 Extract the correct topic from the message.
 Do NOT mention the old paragraph or what the student wrote before.

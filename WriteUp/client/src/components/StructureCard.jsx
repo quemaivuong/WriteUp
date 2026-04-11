@@ -80,7 +80,7 @@ export default function StructureCard({ formatCheck, topicCheck, onAction, disab
         </div>
       )}
 
-      {hasFormatIssue && (
+      {!hasTopicIssue && hasFormatIssue && (
         <div style={{
           background: 'var(--color-background-primary)',
           border: '0.5px solid var(--color-border-tertiary)',
