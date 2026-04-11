@@ -764,18 +764,11 @@ async function processConversationTurn({
     systemMessageText += parsed.format_check.format_issue + "\n\n"
   }
   if (parsed.topic_check && !parsed.topic_check.on_topic) {
-    systemMessageText += parsed.topic_check.topic_issue + "\n\n"
-  }
-
-  // Strength always present
-  if (parsed.what_is_strong) {
-    systemMessageText += parsed.what_is_strong + "\n\n"
-  }
-
-  // If topic is off, hint at grammar/vocab but don't detail them
-  if (parsed.topic_check && !parsed.topic_check.on_topic) {
-    if ((parsed.direct_feedback?.length > 0) || (parsed.socratic_questions?.length > 0)) {
-      systemMessageText += "There are also some grammar and vocabulary points to address — we will look at those once the topic is right.\n\n"
+    systemMessageText += parsed.topic_check.topic_issue
+  } else {
+    // Strength only shown when topic is correct
+    if (parsed.what_is_strong) {
+      systemMessageText += parsed.what_is_strong + "\n\n"
     }
   } else {
     // Normal flow — show grammar and Socratic
