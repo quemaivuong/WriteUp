@@ -764,13 +764,11 @@ async function processConversationTurn({
     systemMessageText += parsed.format_check.format_issue + "\n\n"
   }
   if (parsed.topic_check && !parsed.topic_check.on_topic) {
-    systemMessageText += parsed.topic_check.topic_issue
+    systemMessageText += "The topic needs attention — see the card below."
   } else {
-    // Strength only shown when topic is correct
     if (parsed.what_is_strong) {
       systemMessageText += parsed.what_is_strong + "\n\n"
     }
-    // Normal flow — show grammar and Socratic
     if (parsed.direct_feedback && parsed.direct_feedback.length > 0) {
       parsed.direct_feedback.forEach(fb => {
         systemMessageText += fb.message + "\n\n"
