@@ -39,7 +39,7 @@ export default function StudentReplyInput({
         onChange={e => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         disabled={disabled}
-        placeholder={placeholder || 'Type your response… (Cmd+Enter to send)'}
+        placeholder={placeholder || 'Type your response… (Ctrl+Enter or Cmd+Enter to send)'}
         rows={3}
         style={{
           width: '100%',

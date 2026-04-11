@@ -312,7 +312,7 @@ export default function WritePage({
                   onKeep={handleKeep}
                   onPushback={handlePushback}
                   disabled={isLoading}
-                  placeholder="Respond to the feedback… (Cmd+Enter to send)"
+                  placeholder="Respond to the feedback… (Ctrl+Enter to send)"
                   showKeepOption={pendingErrors.length > 0}
                   showPushbackOption={pendingErrors.length > 0}
                 />
