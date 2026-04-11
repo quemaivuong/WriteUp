@@ -89,6 +89,41 @@ export default function WritePage({
     })
   }
 
+  function handleCardAction(message, turnType) {
+    if (turnType === 'student_keeps') {
+      keepOriginal({
+        currentParagraph: paragraph,
+        taskType: selectedTask?.task,
+        mode: selectedTask?.mode,
+        unitTopic: selectedTask?.topic,
+        errorBeingKept: pendingErrors[0] || null
+      })
+      handleStudentMessage(message)
+      return
+    }
+    if (turnType === 'student_pushback') {
+      sendPushback({
+        message,
+        currentParagraph: paragraph,
+        taskType: selectedTask?.task,
+        mode: selectedTask?.mode,
+        unitTopic: selectedTask?.topic,
+        errorBeingDisputed: pendingErrors[0] || null
+      })
+      handleStudentMessage(message)
+      return
+    }
+    // student_answer or student_revision
+    sendReply({
+      message,
+      currentParagraph: paragraph,
+      taskType: selectedTask?.task,
+      mode: selectedTask?.mode,
+      unitTopic: selectedTask?.topic
+    })
+    handleStudentMessage(message)
+  }
+
   function handleShare() {
     setDraftShared(true)
     handleDraftSubmitted()
@@ -232,8 +267,16 @@ export default function WritePage({
                   <DialogueBubble role={turn.role} content={turn.content} />
                   {turn.role === 'system' && (
                     <>
-                      <FeedbackCard errors={turn.directFeedback} />
-                      <SocraticCard questions={turn.socraticQuestions} />
+                      <FeedbackCard
+                        errors={turn.directFeedback}
+                        onAction={handleCardAction}
+                        disabled={isLoading}
+                      />
+                      <SocraticCard
+                        questions={turn.socraticQuestions}
+                        onAction={handleCardAction}
+                        disabled={isLoading}
+                      />
                       {turn.options && turn.options.length > 0 && (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
                           {turn.options.map((opt, j) => (
