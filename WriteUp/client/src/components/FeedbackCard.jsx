@@ -10,7 +10,7 @@ function ErrorCard({ error, index, onAction, disabled }) {
   }
 
   function handleCheckAll() {
-    onAction(`Can you check all the verbs in my paragraph for the same pattern as "${error.surface}"?`, 'student_answer', error.surface)
+    onAction(`Please check all the verbs in my paragraph and find any other subject-verb agreement errors like "${error.surface}".`, 'student_revision', error.surface)
     setActiveAction(null)
   }
 
