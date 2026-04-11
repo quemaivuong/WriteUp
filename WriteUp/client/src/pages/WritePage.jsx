@@ -90,8 +90,6 @@ export default function WritePage({
   }
 
   function handleCardAction(message, turnType, errorSurface) {
-    handleStudentMessage(message)
-
     if (turnType === 'student_keeps') {
       keepOriginal({
         currentParagraph: paragraph,
