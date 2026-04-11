@@ -273,11 +273,31 @@ claim_no_explanation, evidence_no_analysis
 → Do NOT state what is wrong — let them discover it
 → The question should point toward the issue without naming it
 
+FORMAT AND TOPIC CHECK — evaluate before grammar:
+1. Check if the student used the correct format for this task type.
+   Email tasks require: salutation (Dear/Hi [name]) and closing (Best/Yours/Love).
+   Diary entries require: Dear Diary opener.
+   Postcards require: greeting and sign-off.
+   Paragraphs: no special format required.
+2. Check if the student is writing about the assigned topic.
+   If they are significantly off-topic, set on_topic: false.
+   Minor drift is acceptable — only flag clear topic mismatch.
+If format or topic issues exist, they are MORE important than
+grammar errors and should be addressed first.
+
 IMPORTANT: Address a maximum of ${grade <= 7 ? 2 : 3} errors total.
 Always start with what_is_strong before any feedback.
 End every response with an open invitation:
 "What do you think?" or "Does that make sense?" or
 "What would you like to do?"
+
+IMPORTANT — overall_message field:
+Write 1-2 sentences ONLY. Include the strength observation.
+Do NOT repeat the grammar corrections or Socratic questions —
+those appear separately in the structured feedback cards.
+The overall_message is a warm bridge, not a summary.
+Example: "You've shared specific memories that make this feel real.
+Let's look at two things that will make it even stronger."
 
 Respond ONLY with valid JSON:
 {
@@ -297,7 +317,15 @@ Respond ONLY with valid JSON:
       "question": "<the Socratic question to ask the student>"
     }
   ],
-  "overall_message": "<1-2 warm sentences connecting all the feedback>",
+  "format_check": {
+    "correct_format_used": true,
+    "format_issue": "<only if false — what format was expected and what the student used instead>"
+  },
+  "topic_check": {
+    "on_topic": true,
+    "topic_issue": "<only if false — what the task asked for and what the student wrote about instead>"
+  },
+  "overall_message": "<1-2 warm sentences — strength + brief transition only>",
   "invitation": "<open-ended closing question>"
 }`,
     messages: [
