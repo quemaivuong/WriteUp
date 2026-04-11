@@ -10,12 +10,12 @@ function ErrorCard({ error, index, onAction, disabled }) {
   }
 
   function handleCheckAll() {
-    onAction(`Can you check all the verbs in my paragraph for the same pattern as "${error.surface}"?`, 'student_answer')
+    onAction(`Can you check all the verbs in my paragraph for the same pattern as "${error.surface}"?`, 'student_answer', error.surface)
     setActiveAction(null)
   }
 
   function handleKeep() {
-    onAction(`I'll keep "${error.surface}" as is.`, 'student_keeps')
+    onAction(`I'll keep "${error.surface}" as is.`, 'student_keeps', error.surface)
     setActiveAction(null)
   }
 
@@ -28,7 +28,7 @@ function ErrorCard({ error, index, onAction, disabled }) {
   function handleSend() {
     if (!replyText.trim()) return
     const turnType = activeAction === 'disagree' ? 'student_pushback' : 'student_revision'
-    onAction(replyText.trim(), turnType)
+    onAction(replyText.trim(), turnType, error.surface)
     setReplyText('')
     setActiveAction(null)
   }

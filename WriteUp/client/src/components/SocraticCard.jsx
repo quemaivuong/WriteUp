@@ -10,7 +10,7 @@ function QuestionCard({ question, index, onAction, disabled }) {
   }
 
   function handleKeep() {
-    onAction(`I'll keep "${question.surface}" as is.`, 'student_keeps')
+    onAction(`I'll keep "${question.surface}" as is.`, 'student_keeps', question.surface)
     setActiveAction(null)
   }
 
@@ -23,7 +23,7 @@ function QuestionCard({ question, index, onAction, disabled }) {
   function handleSend() {
     if (!replyText.trim()) return
     const turnType = activeAction === 'disagree' ? 'student_pushback' : 'student_answer'
-    onAction(replyText.trim(), turnType)
+    onAction(replyText.trim(), turnType, question.surface)
     setReplyText('')
     setActiveAction(null)
   }
