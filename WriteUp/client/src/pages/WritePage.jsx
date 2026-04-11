@@ -272,25 +272,29 @@ export default function WritePage({
                         onAction={handleCardAction}
                         disabled={isLoading}
                       />
-                      <FeedbackCard
-                        errors={turn.directFeedback}
-                        onAction={handleCardAction}
-                        disabled={isLoading}
-                      />
-                      <SocraticCard
-                        questions={turn.socraticQuestions}
-                        onAction={handleCardAction}
-                        disabled={isLoading}
-                      />
-                      {turn.invitation && (
-                        <div style={{
-                          fontSize: '13px',
-                          color: 'var(--color-text-secondary)',
-                          fontStyle: 'italic',
-                          padding: '4px 0'
-                        }}>
-                          {turn.invitation}
-                        </div>
+                      {(!turn.topicCheck || turn.topicCheck.on_topic) && (
+                        <>
+                          <FeedbackCard
+                            errors={turn.directFeedback}
+                            onAction={handleCardAction}
+                            disabled={isLoading}
+                          />
+                          <SocraticCard
+                            questions={turn.socraticQuestions}
+                            onAction={handleCardAction}
+                            disabled={isLoading}
+                          />
+                          {turn.invitation && (
+                            <div style={{
+                              fontSize: '13px',
+                              color: 'var(--color-text-secondary)',
+                              fontStyle: 'italic',
+                              padding: '4px 0'
+                            }}>
+                              {turn.invitation}
+                            </div>
+                          )}
+                        </>
                       )}
                     </>
                   )}
