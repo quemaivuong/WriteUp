@@ -352,6 +352,17 @@ function buildStudentAnswerPrompt(
 TONE INSTRUCTIONS:
 ${tone}
 
+CONVERSATION FOCUS RULE:
+If the conversation history shows that the student agreed to
+rewrite their paragraph (look for messages starting with
+"I will rewrite my paragraph"), then:
+- The original paragraph is NO LONGER relevant
+- Do NOT reference it, quote from it, or compare to it
+- Focus ONLY on helping the student build the NEW paragraph
+- Continue asking about the new topic until the student has
+  enough ideas to write
+- Do not mention errors from the old paragraph
+
 The student has just answered a question you asked about their writing.
 Evaluate their answer against the pending issue: ${JSON.stringify(pendingErrors)}
 
