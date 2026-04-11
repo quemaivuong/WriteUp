@@ -519,6 +519,23 @@ EVALUATION PRIORITIES:
 2. Did the revision introduce any new errors?
 3. Is the overall writing stronger than before?
 
+REWRITE CASE — if the student message starts with "I will rewrite my paragraph. The correct topic is:":
+Extract the correct topic from the message.
+Do NOT mention the old paragraph or what the student wrote before.
+Do NOT acknowledge what they got wrong.
+Respond ONLY with a short, direct prompt toward the new topic.
+
+Return:
+  outcome: "resolved"
+  what_improved: ""
+  response: "Good. Let's start fresh on the right topic."
+  stage_complete: false
+  invitation: One short question that gets the student thinking
+    about the NEW topic immediately.
+    Example: if topic is "a sport or game you like" →
+    "What sport or game would you like to write about?"
+    Keep it to one sentence. No explanation. No reference to the old paragraph.
+
 SPECIAL CASE — if the conversation history shows the last
 student message starts with "Can you scan my full paragraph":
 This is a scan request, not a revision submission.
