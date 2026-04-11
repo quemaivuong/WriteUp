@@ -401,6 +401,20 @@ Respond ONLY with valid JSON:
   "next_action": "guide_fix" | "redirect" | "offer_options",
   "options": ["<option 1>", "<option 2>", "<option 3>"],
   "invitation": "<closing question or prompt>"
+}
+
+CRITICAL: You MUST respond with valid JSON only.
+No markdown, no plain text, no asterisks, no bold formatting.
+Your entire response must be parseable by JSON.parse().
+Start your response with { and end with }.
+If you find yourself writing a plain text response, stop and
+reformat it as JSON with these fields:
+{
+  "assessment": "correct" | "partially_correct" | "incorrect",
+  "response": "<your full response as a plain string>",
+  "next_action": "guide_fix" | "redirect" | "offer_options",
+  "options": [],
+  "invitation": "<closing question>"
 }`,
     messages: [
       ...formatHistoryForClaude(conversationHistory),
@@ -759,11 +773,11 @@ async function processConversationTurn({
       })
     }
     if (parsed.overall_message) systemMessageText += parsed.overall_message + "\n\n"
-    if (parsed.invitation)      systemMessageText += parsed.invitation
-    if (parsed.student_choice)  systemMessageText += "\n\n" + parsed.student_choice
+    if (parsed.response)        systemMessageText += parsed.response + "\n\n"
+    if (parsed.invitation)      systemMessageText += parsed.invitation + "\n\n"
+    if (parsed.student_choice)  systemMessageText += parsed.student_choice + "\n\n"
   }
 
-  if (parsed.response)        systemMessageText += parsed.response + "\n\n"
   systemMessageText = systemMessageText.trim()
   console.log('TRIMMED MESSAGE:', systemMessageText);
 
