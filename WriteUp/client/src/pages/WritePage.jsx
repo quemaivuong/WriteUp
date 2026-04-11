@@ -4,6 +4,7 @@ import WritingArea from '../components/WritingArea'
 import ActionButtons from '../components/ActionButtons'
 import DialogueBubble from '../components/DialogueBubble'
 import FeedbackCard from '../components/FeedbackCard'
+import StructureCard from '../components/StructureCard'
 import SocraticCard from '../components/SocraticCard'
 import StudentReplyInput from '../components/StudentReplyInput'
 import useConversation from '../hooks/useConversation'
@@ -265,6 +266,12 @@ export default function WritePage({
                   <DialogueBubble role={turn.role} content={turn.content} />
                   {turn.role === 'system' && (
                     <>
+                      <StructureCard
+                        formatCheck={turn.formatCheck}
+                        topicCheck={turn.topicCheck}
+                        onAction={handleCardAction}
+                        disabled={isLoading}
+                      />
                       <FeedbackCard
                         errors={turn.directFeedback}
                         onAction={handleCardAction}
@@ -275,24 +282,13 @@ export default function WritePage({
                         onAction={handleCardAction}
                         disabled={isLoading}
                       />
-                      {turn.options && turn.options.length > 0 && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
-                          {turn.options.map((opt, j) => (
-                            <span key={j} style={{
-                              fontSize: '12px',
-                              padding: '4px 12px',
-                              borderRadius: '99px',
-                              background: 'rgba(184,125,42,0.12)',
-                              color: 'var(--amber)',
-                              border: '1px solid rgba(184,125,42,0.25)'
-                            }}>
-                              {opt}
-                            </span>
-                          ))}
-                        </div>
-                      )}
                       {turn.invitation && (
-                        <div style={{ fontSize: '13px', color: 'var(--ink2)', fontStyle: 'italic', padding: '4px 0' }}>
+                        <div style={{
+                          fontSize: '13px',
+                          color: 'var(--color-text-secondary)',
+                          fontStyle: 'italic',
+                          padding: '4px 0'
+                        }}>
                           {turn.invitation}
                         </div>
                       )}

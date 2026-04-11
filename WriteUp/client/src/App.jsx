@@ -62,7 +62,9 @@ export default function App() {
         socraticQuestions: systemResponse.socraticQuestions,
         invitation: systemResponse.invitation,
         stageComplete: systemResponse.stageComplete,
-        options: systemResponse.options || []
+        options: systemResponse.options || [],
+        formatCheck: systemResponse.formatCheck || null,
+        topicCheck: systemResponse.topicCheck || null,
       }
     ])
     console.log('NEW TURN STORED:', systemResponse.systemMessage?.slice(0, 50))

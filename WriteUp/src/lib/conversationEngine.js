@@ -814,6 +814,8 @@ async function processConversationTurn({
     outcome:               parsed.outcome || null,
     stageComplete:         parsed.stage_complete || false,
     whatImproved:          parsed.what_improved || null,
+    formatCheck:           parsed.format_check || null,
+    topicCheck:            parsed.topic_check || null,
     sessionPatterns,
     patternAlerts,
     sessionLog:            updatedLog,
