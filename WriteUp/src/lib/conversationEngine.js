@@ -726,23 +726,45 @@ async function processConversationTurn({
     throw new Error("Invalid response format from Claude");
   }
 
-  let systemMessageText = "";
-  if (parsed.what_is_strong) systemMessageText += parsed.what_is_strong + "\n\n";
-  if (parsed.direct_feedback && parsed.direct_feedback.length > 0) {
-    parsed.direct_feedback.forEach(fb => {
-      systemMessageText += fb.message + "\n\n";
-    });
+  let systemMessageText = ""
+
+  // Topic check comes first if there is an issue
+  if (parsed.format_check && !parsed.format_check.correct_format_used) {
+    systemMessageText += parsed.format_check.format_issue + "\n\n"
   }
-  if (parsed.socratic_questions && parsed.socratic_questions.length > 0) {
-    parsed.socratic_questions.forEach(q => {
-      systemMessageText += q.question + "\n\n";
-    });
+  if (parsed.topic_check && !parsed.topic_check.on_topic) {
+    systemMessageText += parsed.topic_check.topic_issue + "\n\n"
   }
-  if (parsed.response)        systemMessageText += parsed.response + "\n\n";
-  if (parsed.overall_message) systemMessageText += parsed.overall_message + "\n\n";
-  if (parsed.invitation)      systemMessageText += parsed.invitation;
-  if (parsed.student_choice)  systemMessageText += "\n\n" + parsed.student_choice;
-  systemMessageText = systemMessageText.trim();
+
+  // Strength always present
+  if (parsed.what_is_strong) {
+    systemMessageText += parsed.what_is_strong + "\n\n"
+  }
+
+  // If topic is off, hint at grammar/vocab but don't detail them
+  if (parsed.topic_check && !parsed.topic_check.on_topic) {
+    if ((parsed.direct_feedback?.length > 0) || (parsed.socratic_questions?.length > 0)) {
+      systemMessageText += "There are also some grammar and vocabulary points to address — we will look at those once the topic is right.\n\n"
+    }
+  } else {
+    // Normal flow — show grammar and Socratic
+    if (parsed.direct_feedback && parsed.direct_feedback.length > 0) {
+      parsed.direct_feedback.forEach(fb => {
+        systemMessageText += fb.message + "\n\n"
+      })
+    }
+    if (parsed.socratic_questions && parsed.socratic_questions.length > 0) {
+      parsed.socratic_questions.forEach(q => {
+        systemMessageText += q.question + "\n\n"
+      })
+    }
+    if (parsed.overall_message) systemMessageText += parsed.overall_message + "\n\n"
+    if (parsed.invitation)      systemMessageText += parsed.invitation
+    if (parsed.student_choice)  systemMessageText += "\n\n" + parsed.student_choice
+  }
+
+  if (parsed.response)        systemMessageText += parsed.response + "\n\n"
+  systemMessageText = systemMessageText.trim()
   console.log('TRIMMED MESSAGE:', systemMessageText);
 
   let responseTrack = "direct";
