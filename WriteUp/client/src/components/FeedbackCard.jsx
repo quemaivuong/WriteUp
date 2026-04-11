@@ -10,8 +10,19 @@ function ErrorCard({ error, index, onAction, disabled }) {
   }
 
   function handleCheckAll() {
-    onAction(`Please check all the verbs in my paragraph and find any other subject-verb agreement errors like "${error.surface}".`, 'student_revision', error.surface)
-    setActiveAction(null)
+    const errorLabels = {
+      subject_verb_agreement: 'verb agreement errors',
+      article_omission: 'missing articles',
+      tense_mixing: 'tense inconsistencies',
+      direct_translation: 'direct translation errors',
+      vocabulary_repetition: 'repeated vocabulary'
+    }
+    const label = errorLabels[error.error_type] || 'similar errors'
+    onAction(
+      `Can you scan my full paragraph and find all ${label}, not just "${error.surface}"?`,
+      'student_answer',
+      error.surface
+    )
   }
 
   function handleKeep() {
@@ -99,6 +110,32 @@ function ErrorCard({ error, index, onAction, disabled }) {
         {/* Action buttons */}
         {!activeAction && (
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {(() => {
+              const checkAllLabel = {
+                subject_verb_agreement: 'Check all verbs',
+                article_omission: 'Check all articles',
+                tense_mixing: 'Check all tenses',
+                direct_translation: 'Check for translation errors',
+                vocabulary_repetition: 'Find all repetition'
+              }[error.error_type] || 'Check for similar errors'
+              return (
+                <button
+                  onClick={handleCheckAll}
+                  disabled={disabled}
+                  style={{
+                    fontSize: '12px', padding: '5px 11px',
+                    borderRadius: 'var(--border-radius-md)',
+                    border: '0.5px solid var(--color-border-secondary)',
+                    background: 'var(--color-background-primary)',
+                    color: 'var(--color-text-primary)',
+                    cursor: disabled ? 'not-allowed' : 'pointer',
+                    opacity: disabled ? 0.5 : 1
+                  }}
+                >
+                  {checkAllLabel}
+                </button>
+              )
+            })()}
             <button
               onClick={handleFixThis}
               disabled={disabled}
@@ -113,21 +150,6 @@ function ErrorCard({ error, index, onAction, disabled }) {
               }}
             >
               Fix this
-            </button>
-            <button
-              onClick={handleCheckAll}
-              disabled={disabled}
-              style={{
-                fontSize: '12px', padding: '5px 11px',
-                borderRadius: 'var(--border-radius-md)',
-                border: '0.5px solid var(--color-border-secondary)',
-                background: 'var(--color-background-primary)',
-                color: 'var(--color-text-primary)',
-                cursor: disabled ? 'not-allowed' : 'pointer',
-                opacity: disabled ? 0.5 : 1
-              }}
-            >
-              Check all verbs
             </button>
             <button
               onClick={handleKeep}

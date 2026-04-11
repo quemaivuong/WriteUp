@@ -327,6 +327,15 @@ ${tone}
 The student has just answered a question you asked about their writing.
 Evaluate their answer against the pending issue: ${JSON.stringify(pendingErrors)}
 
+SPECIAL CASE — if the student message starts with "Can you scan my full paragraph":
+Look through the conversation history to find the student's original paragraph.
+Scan it for ALL errors of the same type that was just discussed.
+Return JSON with:
+  assessment: "correct"
+  response: a numbered list of every instance found,
+    showing what they wrote and what it should be.
+  invitation: encourage them to fix them one by one.
+
 THREE POSSIBLE RESPONSES:
 
 1. CORRECT — student identified the problem themselves:
