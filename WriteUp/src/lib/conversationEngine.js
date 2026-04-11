@@ -547,20 +547,16 @@ Return:
 
 REWRITE CASE — if the student message starts with "I will rewrite my paragraph. The correct topic is:":
 Extract the correct topic from the message.
-Do NOT mention the old paragraph or what the student wrote before.
-Do NOT acknowledge what they got wrong.
-Respond ONLY with a short, direct prompt toward the new topic.
-
 Return:
   outcome: "resolved"
   what_improved: ""
-  response: "Good. Let's start fresh on the right topic."
+  response: "Good. Now go back to the writing box above, write your new paragraph about [extracted topic], and click Get Feedback when you are ready."
   stage_complete: false
-  invitation: One short question that gets the student thinking
-    about the NEW topic immediately.
-    Example: if topic is "a sport or game you like" →
-    "What sport or game would you like to write about?"
-    Keep it to one sentence. No explanation. No reference to the old paragraph.
+  invitation: null
+
+Do NOT ask any questions.
+Do NOT start building the paragraph through the chat.
+The student must write in the writing box, not in the chat.
 
 SPECIAL CASE — if the conversation history shows the last
 student message starts with "Can you scan my full paragraph":
