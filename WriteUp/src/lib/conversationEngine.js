@@ -505,6 +505,21 @@ EVALUATION PRIORITIES:
 2. Did the revision introduce any new errors?
 3. Is the overall writing stronger than before?
 
+SPECIAL CASE — if the conversation history shows the last
+student message starts with "Can you scan my full paragraph":
+This is a scan request, not a revision submission.
+Scan the paragraph for ALL errors of the type mentioned in
+that message (tense, articles, verbs, etc).
+Return:
+  outcome: "resolved"
+  what_improved: "Here are all the [error type] issues I found:"
+    followed by a numbered list: '[phrase]' → should be '[correction]'
+  response: the numbered list as a clear readable message
+  stage_complete: false
+  invitation: A Socratic question on error #1 only —
+    do not give the answer away. Ask the student to think
+    about why that phrase needs changing.
+
 THREE POSSIBLE OUTCOMES:
 
 RESOLVED — the issue is genuinely fixed:
@@ -648,11 +663,19 @@ async function processConversationTurn({
       );
       break;
     case "student_answer":
-      promptData = buildStudentAnswerPrompt(
-        studentMessage, grade, apprehensionFlags,
-        gradeBandData, history, pendingErrors || [],
-        currentParagraph
-      );
+      if (studentMessage.startsWith("Can you scan my full paragraph")) {
+        promptData = buildRevisionPrompt(
+          currentParagraph, grade, mode, taskType,
+          apprehensionFlags, gradeBandData,
+          history, []
+        )
+      } else {
+        promptData = buildStudentAnswerPrompt(
+          studentMessage, grade, apprehensionFlags,
+          gradeBandData, history, pendingErrors || [],
+          currentParagraph
+        )
+      }
       break;
     case "student_pushback":
       promptData = buildPushbackPrompt(
