@@ -1,4 +1,4 @@
-export default function StructureCard({ formatCheck, topicCheck, onAction, disabled }) {
+export default function StructureCard({ formatCheck, topicCheck, onAction, disabled, taskInfo }) {
   const hasFormatIssue = formatCheck && !formatCheck.correct_format_used
   const hasTopicIssue = topicCheck && !topicCheck.on_topic
 
@@ -43,7 +43,10 @@ export default function StructureCard({ formatCheck, topicCheck, onAction, disab
             </div>
             <div style={{ display: 'flex', gap: '6px' }}>
               <button
-                onClick={() => onAction('I will rewrite my paragraph to focus on the correct topic.', 'student_revision')}
+                onClick={() => onAction(
+                  `I will rewrite my paragraph. The correct topic is: "${taskInfo?.task || 'the assigned topic'}". The unit is: ${taskInfo?.topic || ''}.`,
+                  'student_revision'
+                )}
                 disabled={disabled}
                 style={{
                   fontSize: '12px', padding: '5px 11px',

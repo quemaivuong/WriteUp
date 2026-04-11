@@ -271,6 +271,7 @@ export default function WritePage({
                         topicCheck={turn.topicCheck}
                         onAction={handleCardAction}
                         disabled={isLoading}
+                        taskInfo={selectedTask}
                       />
                       {(!turn.topicCheck || turn.topicCheck.on_topic) && (
                         <>
