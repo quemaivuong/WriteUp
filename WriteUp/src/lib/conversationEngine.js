@@ -328,13 +328,21 @@ The student has just answered a question you asked about their writing.
 Evaluate their answer against the pending issue: ${JSON.stringify(pendingErrors)}
 
 SPECIAL CASE — if the student message starts with "Can you scan my full paragraph":
-Look through the conversation history to find the student's original paragraph.
-Scan it for ALL errors of the same type that was just discussed.
-Return JSON with:
-  assessment: "correct"
-  response: a numbered list of every instance found,
-    showing what they wrote and what it should be.
-  invitation: encourage them to fix them one by one.
+1. Find the student's paragraph from the message (it is included as "Student's paragraph: ...")
+2. Scan it for ALL errors of the type mentioned
+3. Return JSON with:
+   assessment: "correct"
+   response: "I found [N] places where [error type] needs attention:\n1. '[phrase]' → should be '[correction]'\n2. '[phrase]' → should be '[correction]'\n..."
+   next_action: "redirect"
+   invitation: A Socratic question about the FIRST error only —
+     do not give the correction away. Ask the student to think
+     about why that specific phrase needs changing.
+     Example: "Let's start with number 1 — '[phrase]'.
+     Read it aloud. What do you notice about the verb?"
+   options: []
+
+Do NOT just list the errors and stop. The invitation must open
+a dialogue on the first error.
 
 THREE POSSIBLE RESPONSES:
 
