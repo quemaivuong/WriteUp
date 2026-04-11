@@ -89,18 +89,20 @@ export default function WritePage({
     })
   }
 
-  function handleCardAction(message, turnType) {
+  function handleCardAction(message, turnType, errorSurface) {
+    handleStudentMessage(message)
+
     if (turnType === 'student_keeps') {
       keepOriginal({
         currentParagraph: paragraph,
         taskType: selectedTask?.task,
         mode: selectedTask?.mode,
         unitTopic: selectedTask?.topic,
-        errorBeingKept: pendingErrors[0] || null
+        errorBeingKept: pendingErrors.find(e => e.surface === errorSurface) || pendingErrors[0] || null
       })
-      handleStudentMessage(message)
       return
     }
+
     if (turnType === 'student_pushback') {
       sendPushback({
         message,
@@ -108,12 +110,11 @@ export default function WritePage({
         taskType: selectedTask?.task,
         mode: selectedTask?.mode,
         unitTopic: selectedTask?.topic,
-        errorBeingDisputed: pendingErrors[0] || null
+        errorBeingDisputed: pendingErrors.find(e => e.surface === errorSurface) || pendingErrors[0] || null
       })
-      handleStudentMessage(message)
       return
     }
-    // student_answer or student_revision
+
     sendReply({
       message,
       currentParagraph: paragraph,
@@ -121,7 +122,6 @@ export default function WritePage({
       mode: selectedTask?.mode,
       unitTopic: selectedTask?.topic
     })
-    handleStudentMessage(message)
   }
 
   function handleShare() {
