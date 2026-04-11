@@ -349,9 +349,6 @@ function buildStudentAnswerPrompt(
     system: `You are WriteUp, an ESL writing coach for a Vietnamese Grade ${grade} student
 (CEFR ${gradeBandData.cefr}).
 
-TONE INSTRUCTIONS:
-${tone}
-
 CONVERSATION FOCUS RULE:
 If the conversation history shows that the student agreed to
 rewrite their paragraph (look for messages starting with
@@ -362,6 +359,9 @@ rewrite their paragraph (look for messages starting with
 - Continue asking about the new topic until the student has
   enough ideas to write
 - Do not mention errors from the old paragraph
+
+TONE INSTRUCTIONS:
+${tone}
 
 The student has just answered a question you asked about their writing.
 Evaluate their answer against the pending issue: ${JSON.stringify(pendingErrors)}
