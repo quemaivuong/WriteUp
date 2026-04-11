@@ -313,7 +313,7 @@ Respond ONLY with valid JSON:
 
 function buildStudentAnswerPrompt(
   studentAnswer, grade, apprehensionFlags,
-  gradeBandData, conversationHistory, pendingErrors
+  gradeBandData, conversationHistory, pendingErrors, currentParagraph
 ) {
   const tone = buildApprehensionInstructions(apprehensionFlags);
 
@@ -368,7 +368,7 @@ Respond ONLY with valid JSON:
 }`,
     messages: [
       ...formatHistoryForClaude(conversationHistory),
-      { role: "user", content: studentAnswer }
+      { role: "user", content: `Student's paragraph: "${currentParagraph || ''}"\n\nStudent's response: ${studentAnswer}` }
     ]
   };
 }
@@ -614,7 +614,8 @@ async function processConversationTurn({
     case "student_answer":
       promptData = buildStudentAnswerPrompt(
         studentMessage, grade, apprehensionFlags,
-        gradeBandData, history, pendingErrors || []
+        gradeBandData, history, pendingErrors || [],
+        currentParagraph
       );
       break;
     case "student_pushback":

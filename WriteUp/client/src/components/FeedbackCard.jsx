@@ -72,7 +72,7 @@ function ErrorCard({ error, index, onAction, disabled }) {
           textTransform: 'uppercase', letterSpacing: '0.06em',
           color: 'var(--color-text-danger)'
         }}>
-          Grammar — direct feedback
+          Grammar — fix this first
         </div>
       </div>
 
