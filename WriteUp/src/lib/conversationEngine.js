@@ -770,7 +770,6 @@ async function processConversationTurn({
     if (parsed.what_is_strong) {
       systemMessageText += parsed.what_is_strong + "\n\n"
     }
-  } else {
     // Normal flow — show grammar and Socratic
     if (parsed.direct_feedback && parsed.direct_feedback.length > 0) {
       parsed.direct_feedback.forEach(fb => {
