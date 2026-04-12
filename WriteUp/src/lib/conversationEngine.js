@@ -304,6 +304,16 @@ The overall_message is a warm bridge, not a summary.
 Example: "You've shared specific memories that make this feel real.
 Let's look at two things that will make it even stronger."
 
+FORMATTING RULE — CRITICAL:
+Never use markdown in your responses.
+No asterisks for bold (**word**).
+No hyphens for bullet points (- item).
+No headers (## heading).
+Write in plain sentences and paragraphs only.
+If you need to list items, use numbers: 1. 2. 3.
+If you need emphasis, use plain words like "important" or
+write the word in CAPITALS.
+
 Respond ONLY with valid JSON:
 {
   "what_is_strong": "<specific genuine praise>",
@@ -639,6 +649,16 @@ NEW ERROR INTRODUCED — revision created a different problem:
 
 Always name what specifically improved — never give generic praise.
 
+FORMATTING RULE — CRITICAL:
+Never use markdown in your responses.
+No asterisks for bold (**word**).
+No hyphens for bullet points (- item).
+No headers (## heading).
+Write in plain sentences and paragraphs only.
+If you need to list items, use numbers: 1. 2. 3.
+If you need emphasis, use plain words like "important" or
+write the word in CAPITALS.
+
 Respond ONLY with valid JSON:
 {
   "outcome": "resolved" | "improved" | "new_error",
@@ -854,7 +874,7 @@ async function processConversationTurn({
 
   // Add call-to-action after every non-complete response
   if (!parsed.stage_complete) {
-    systemMessageText += "\n\n→ Fix it in your paragraph and click **Get Feedback** — or reply here in the chat."
+    systemMessageText += "\n\n→ Revise your paragraph above and click Get Feedback, or reply here in the chat."
   }
 
   systemMessageText = systemMessageText.trim()
