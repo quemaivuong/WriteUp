@@ -168,9 +168,10 @@ export default function WritePage({
   const hasConversation = conversationHistory.length > 0
   const wordTarget = WORD_TARGETS[grade]
 
-  // Derive canShare from the last system turn's state
+  const studentReplies = conversationHistory.filter(t => t.role === 'student' && t.content !== '— Starting over with new paragraph —').length
   const lastSystemTurn = [...conversationHistory].reverse().find(t => t.role === 'system')
-  const canShare = lastSystemTurn &&
+  const canShare = studentReplies >= 1 &&
+    lastSystemTurn &&
     (!lastSystemTurn.directFeedback || lastSystemTurn.directFeedback.length === 0) &&
     (!lastSystemTurn.socraticQuestions || lastSystemTurn.socraticQuestions.length === 0) &&
     (!lastSystemTurn.topicCheck || lastSystemTurn.topicCheck.on_topic) &&
