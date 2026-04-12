@@ -168,6 +168,15 @@ export default function WritePage({
   const hasConversation = conversationHistory.length > 0
   const wordTarget = WORD_TARGETS[grade]
 
+  // Derive canShare from the last system turn's state
+  const lastSystemTurn = [...conversationHistory].reverse().find(t => t.role === 'system')
+  const canShare = lastSystemTurn &&
+    (!lastSystemTurn.directFeedback || lastSystemTurn.directFeedback.length === 0) &&
+    (!lastSystemTurn.socraticQuestions || lastSystemTurn.socraticQuestions.length === 0) &&
+    (!lastSystemTurn.topicCheck || lastSystemTurn.topicCheck.on_topic) &&
+    (!lastSystemTurn.formatCheck || lastSystemTurn.formatCheck.correct_format_used) &&
+    !draftShared
+
   return (
     <main style={{
       maxWidth: '1100px', margin: '0 auto', padding: '24px 22px',
@@ -251,7 +260,7 @@ export default function WritePage({
               onShareDraft={handleShare}
               onNewTask={handleNewTask}
               canSubmit={paragraph.trim().length > 20 && !isLoading}
-              canShare={stageComplete && !draftShared}
+              canShare={canShare}
               isLoading={isLoading}
             />
 
@@ -349,7 +358,7 @@ export default function WritePage({
               <div ref={dialogueEndRef} />
             </div>
 
-            {hasConversation && !isLoading && !stageComplete && (
+            {hasConversation && !isLoading && !canShare && (
               <div style={{ padding: '12px 16px', borderTop: '1px solid var(--line)' }}>
                 <StudentReplyInput
                   onSend={handleReply}
@@ -363,7 +372,7 @@ export default function WritePage({
               </div>
             )}
 
-            {stageComplete && (
+            {canShare && (
               <div style={{
                 padding: '14px 16px', borderTop: '1px solid var(--line)',
                 background: 'var(--green-light)', fontSize: '13px',
@@ -373,7 +382,7 @@ export default function WritePage({
               </div>
             )}
 
-            {hasConversation && !stageComplete && !isLoading && (
+            {hasConversation && !canShare && !isLoading && (
               <div style={{
                 padding: '10px 16px',
                 borderTop: '0.5px solid var(--color-border-tertiary)',
