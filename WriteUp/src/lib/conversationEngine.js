@@ -852,6 +852,11 @@ async function processConversationTurn({
     if (parsed.student_choice)  systemMessageText += parsed.student_choice + "\n\n"
   }
 
+  // Add call-to-action after every non-complete response
+  if (!parsed.stage_complete) {
+    systemMessageText += "\n\n→ Fix it in your paragraph and click **Get Feedback** — or reply here in the chat."
+  }
+
   systemMessageText = systemMessageText.trim()
   console.log('TRIMMED MESSAGE:', systemMessageText);
 
