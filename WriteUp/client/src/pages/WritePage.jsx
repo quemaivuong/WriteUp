@@ -117,6 +117,8 @@ export default function WritePage({
     // If this is a rewrite confirmation, clear history first
     if (message.startsWith('I will rewrite my paragraph')) {
       handleClearHistory()
+      // Add a visual marker in the conversation
+      handleStudentMessage('— Starting over with new paragraph —')
     }
     sendReply({
       message,
@@ -267,7 +269,21 @@ export default function WritePage({
 
               {conversationHistory.map((turn, i) => (
                 <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <DialogueBubble role={turn.role} content={turn.content} />
+                  {turn.content === '— Starting over with new paragraph —' ? (
+                    <div style={{
+                      textAlign: 'center',
+                      fontSize: '11px',
+                      color: 'var(--color-text-secondary)',
+                      padding: '8px 0',
+                      borderTop: '0.5px solid var(--color-border-tertiary)',
+                      borderBottom: '0.5px solid var(--color-border-tertiary)',
+                      margin: '4px 0'
+                    }}>
+                      Starting fresh — new paragraph below
+                    </div>
+                  ) : (
+                    <DialogueBubble role={turn.role} content={turn.content} />
+                  )}
                   {turn.role === 'system' && (
                     <>
                       <StructureCard

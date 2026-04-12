@@ -104,9 +104,10 @@ export default function App() {
   }
 
   function handleClearHistory() {
-    setConversationHistory([])
+    setSessionId(null)
     setPendingErrors([])
     setDisputedError(null)
+    // Keep conversationHistory so student can see previous dialogue
   }
 
   const sharedProps = {
