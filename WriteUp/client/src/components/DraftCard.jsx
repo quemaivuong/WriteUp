@@ -1,4 +1,4 @@
-export default function DraftCard({ draft, isSelected, onClick }) {
+export default function DraftCard({ draft, isSelected, hasInteracted, onClick }) {
   return (
     <div
       onClick={onClick}
@@ -38,6 +38,16 @@ export default function DraftCard({ draft, isSelected, onClick }) {
             Grade {draft.grade}
           </div>
         </div>
+        {hasInteracted && (
+          <div style={{
+            marginLeft: 'auto',
+            fontSize: '11px',
+            color: 'var(--color-text-success)',
+            fontWeight: '500'
+          }}>
+            ✓ Responded
+          </div>
+        )}
       </div>
 
       {/* Topic */}

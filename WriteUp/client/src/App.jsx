@@ -147,7 +147,7 @@ export default function App() {
           path="/peer"
           element={
             draftSubmitted
-              ? <PeerPage studentId={studentId} grade={grade} />
+              ? <PeerPage studentId={studentId} grade={grade} draftSubmitted={draftSubmitted} />
               : <Navigate to="/write" replace />
           }
         />
