@@ -679,6 +679,14 @@ If you need to list items, use numbers: 1. 2. 3.
 If you need emphasis, use plain words like "important" or
 write the word in CAPITALS.
 
+If errors remain after revision:
+- Put grammar errors in direct_feedback with the same format as initial feedback
+- Put logic/coherence/vocabulary issues in socratic_questions
+- These will be displayed as interactive cards to the student
+If all errors are resolved:
+- Leave both arrays empty
+- Set stage_complete: true
+
 Respond ONLY with valid JSON:
 {
   "outcome": "resolved" | "improved" | "new_error",
@@ -686,6 +694,15 @@ Respond ONLY with valid JSON:
   "remaining_issue": "<only if outcome is improved or new_error>",
   "new_error_type": "<error type ID only if new error introduced>",
   "new_error_surface": "<exact phrase only if new error>",
+  "direct_feedback": [],
+  "socratic_questions": [
+    {
+      "error_type": "<error type ID if applicable>",
+      "surface": "<phrase that still needs work>",
+      "track": "full_socratic",
+      "question": "<Socratic question about the remaining issue>"
+    }
+  ],
   "response": "<your full response>",
   "stage_complete": true | false,
   "invitation": "<closing question if not complete>"
@@ -986,6 +1003,25 @@ async function processConversationTurn({
   });
 
   console.log('SYSTEM MESSAGE TEXT:', systemMessageText);
+
+  // For revision turns, re-run error detection on remaining issues
+  // so directFeedback and socraticQuestions are populated correctly
+  let directFeedback = parsed.direct_feedback || []
+  let socraticQuestions = parsed.socratic_questions || []
+
+  // If this is a revision response and errors remain, extract from response text
+  if (turnType === 'student_revision' && parsed.outcome !== 'resolved') {
+    if (parsed.remaining_issue && directFeedback.length === 0 && socraticQuestions.length === 0) {
+      // Flag that errors remain so canShare stays false
+      socraticQuestions = [{
+        error_type: 'claim_no_explanation',
+        surface: parsed.remaining_issue,
+        track: 'full_socratic',
+        question: parsed.invitation || parsed.remaining_issue
+      }]
+    }
+  }
+
   return {
     sessionId:             session.id,
     turnType,
@@ -993,8 +1029,8 @@ async function processConversationTurn({
     responseTrack,
     systemMessage:         systemMessageText,
     whatIsStrong:          parsed.what_is_strong || null,
-    directFeedback:        enrichedDirectErrors,
-    socraticQuestions:     enrichedSocraticQuestions,
+    directFeedback:        enrichedDirectErrors.length > 0 ? enrichedDirectErrors : directFeedback,
+    socraticQuestions:     enrichedSocraticQuestions.length > 0 ? enrichedSocraticQuestions : socraticQuestions,
     overallMessage:        parsed.overall_message || null,
     invitation:            parsed.invitation || null,
     assessment:            parsed.assessment || null,
