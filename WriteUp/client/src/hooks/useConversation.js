@@ -28,19 +28,26 @@ export default function useConversation({
     setIsLoading(true)
     setError(null)
 
+    const isRevision = !!activeSessionId
+
     try {
-      const { data } = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/conversation`, {
-        studentId,
-        studentMessage: 'Here is my paragraph',
-        currentParagraph: paragraph,
-        grade,
-        taskType,
-        mode,
-        unitTopic,
-        apprehensionFlags,
-        sessionId: activeSessionId || null,
-        pendingErrors: []
-      })
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL || ''}/api/conversation`,
+        {
+          studentId,
+          studentMessage: isRevision
+            ? `I have revised my paragraph. Here is my new version:\n\n"${paragraph}"`
+            : 'Here is my paragraph',
+          currentParagraph: paragraph,
+          grade,
+          taskType,
+          mode,
+          unitTopic,
+          apprehensionFlags,
+          sessionId: activeSessionId || null,
+          pendingErrors: isRevision ? pendingErrors : []
+        }
+      )
 
       if (data.success) {
         setSessionId(data.data.sessionId)
@@ -53,7 +60,7 @@ export default function useConversation({
     } finally {
       setIsLoading(false)
     }
-  }, [studentId, grade, apprehensionFlags, sessionId, onNewTurn])
+  }, [studentId, grade, apprehensionFlags, activeSessionId, pendingErrors, onNewTurn])
 
   // ── Send a reply in the dialogue ───────────────────────────────
   const sendReply = useCallback(async ({

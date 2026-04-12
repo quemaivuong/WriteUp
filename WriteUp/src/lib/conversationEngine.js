@@ -80,6 +80,11 @@ function detectTurnType(studentMessage, conversationHistory) {
     return "initial_feedback";
   }
 
+  // Explicit revision submission from Get Feedback button
+  if (studentMessage.startsWith('I have revised my paragraph. Here is my new version:')) {
+    return 'student_revision'
+  }
+
   // Student explicitly keeping their version
   if (KEEPS_SIGNALS.some(s => msg.includes(s))) {
     return "student_keeps";
@@ -521,6 +526,34 @@ function buildRevisionPrompt(
 
 TONE INSTRUCTIONS:
 ${tone}
+
+REVISION SUBMISSION CASE — if the student message starts with
+"I have revised my paragraph. Here is my new version:":
+
+1. Extract the new paragraph from the message
+2. Look through conversation history to find what errors were
+   previously discussed
+3. Evaluate the new paragraph and report:
+   a. What improved — name specific changes the student made
+   b. What is still an issue — only errors that were already
+      discussed AND still present
+   c. What is new — any new errors introduced in the revision
+4. Be specific about what changed. Do not re-explain errors
+   that have been fixed.
+5. If all previous errors are resolved: set stage_complete: true
+   and congratulate specifically on what they fixed.
+
+Return the standard revision JSON format:
+{
+  "outcome": "resolved" | "improved" | "new_error",
+  "what_improved": "<specific description of what changed>",
+  "remaining_issue": "<only if not resolved>",
+  "new_error_type": "<only if new error>",
+  "new_error_surface": "<only if new error>",
+  "response": "<your full response>",
+  "stage_complete": true | false,
+  "invitation": "<next step — null if complete>"
+}
 
 The student has submitted a revision. Compare it against the
 original issues that were being discussed: ${JSON.stringify(originalErrors)}
