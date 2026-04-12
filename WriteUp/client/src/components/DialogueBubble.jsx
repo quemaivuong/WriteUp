@@ -25,7 +25,16 @@ export default function DialogueBubble({ role, content, isLoading }) {
         {isSystem ? 'WriteUp' : 'You'}
       </div>
       <div className={isSystem ? 'bubble-system' : 'bubble-student'}>
-        {content}
+        {content && content.split('\n\n').map((para, i) => (
+          <p key={i} style={{ margin: i === 0 ? 0 : '8px 0 0' }}>
+            {para.split('\n').map((line, j) => (
+              <span key={j}>
+                {line}
+                {j < para.split('\n').length - 1 && <br />}
+              </span>
+            ))}
+          </p>
+        ))}
       </div>
     </div>
   )
