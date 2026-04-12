@@ -420,6 +420,16 @@ THREE POSSIBLE RESPONSES:
 
 Always end with an open invitation for the student to respond.
 
+FORMATTING RULE — CRITICAL:
+Never use markdown in your responses.
+No asterisks for bold (**word**).
+No hyphens for bullet points (- item).
+No headers (## heading).
+Write in plain sentences and paragraphs only.
+If you need to list items, use numbers: 1. 2. 3.
+If you need emphasis, use plain words like "important" or
+write the word in CAPITALS.
+
 Respond ONLY with valid JSON:
 {
   "assessment": "correct" | "partially_correct" | "incorrect",
@@ -503,6 +513,16 @@ NON-NEGOTIABLE FEEDBACK — grammar rule:
 `}
 
 Always end with a genuine choice for the student.
+
+FORMATTING RULE — CRITICAL:
+Never use markdown in your responses.
+No asterisks for bold (**word**).
+No hyphens for bullet points (- item).
+No headers (## heading).
+Write in plain sentences and paragraphs only.
+If you need to list items, use numbers: 1. 2. 3.
+If you need emphasis, use plain words like "important" or
+write the word in CAPITALS.
 
 Respond ONLY with valid JSON:
 {
@@ -717,6 +737,16 @@ ${track === "direct" ?
 
 Keep the response brief — 2-3 sentences maximum.
 Then ask if they are ready to move to the next part of their writing.
+
+FORMATTING RULE — CRITICAL:
+Never use markdown in your responses.
+No asterisks for bold (**word**).
+No hyphens for bullet points (- item).
+No headers (## heading).
+Write in plain sentences and paragraphs only.
+If you need to list items, use numbers: 1. 2. 3.
+If you need emphasis, use plain words like "important" or
+write the word in CAPITALS.
 
 Respond ONLY with valid JSON:
 {
