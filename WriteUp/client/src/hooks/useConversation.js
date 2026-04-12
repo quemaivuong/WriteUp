@@ -38,7 +38,7 @@ export default function useConversation({
         mode,
         unitTopic,
         apprehensionFlags,
-        sessionId: null,
+        sessionId: activeSessionId || null,
         pendingErrors: []
       })
 

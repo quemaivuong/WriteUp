@@ -349,6 +349,29 @@ export default function WritePage({
                 ✓ Feedback complete. Share your draft to unlock peer review.
               </div>
             )}
+
+            {hasConversation && !stageComplete && !isLoading && (
+              <div style={{
+                padding: '10px 16px',
+                borderTop: '0.5px solid var(--color-border-tertiary)',
+                background: 'var(--color-background-secondary)',
+                fontSize: '12px',
+                color: 'var(--color-text-secondary)',
+                lineHeight: '1.6'
+              }}>
+                <strong style={{ color: 'var(--color-text-primary)', fontWeight: '500' }}>
+                  What to do next:
+                </strong>{' '}
+                Revise your paragraph in the writing box and click{' '}
+                <strong style={{ color: 'var(--color-text-primary)', fontWeight: '500' }}>
+                  Get Feedback
+                </strong>{' '}
+                to check your revision — or type your answer to the question above and click{' '}
+                <strong style={{ color: 'var(--color-text-primary)', fontWeight: '500' }}>
+                  Send
+                </strong>.
+              </div>
+            )}
           </div>
         </div>
       )}
