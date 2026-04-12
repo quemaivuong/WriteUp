@@ -23,6 +23,8 @@ export default function WritePage({
   const [selectedTask, setSelectedTask] = useState(null)
   const [paragraph, setParagraph] = useState('')
   const [draftShared, setDraftShared] = useState(false)
+  const [lastSubmittedParagraph, setLastSubmittedParagraph] = useState('')
+  const [awaitingRewrite, setAwaitingRewrite] = useState(false)
   const dialogueEndRef = useRef(null)
 
   const {
@@ -51,6 +53,26 @@ export default function WritePage({
 
   function handleSubmit() {
     if (!selectedTask || !paragraph.trim()) return
+
+    if (awaitingRewrite && paragraph.trim() === lastSubmittedParagraph.trim()) {
+      handleStudentMessage('I submitted without changing my paragraph.')
+      handleNewTurn({
+        sessionId,
+        systemMessage: "Your paragraph looks the same as before. Go back to the writing box, write your new paragraph on the correct topic, then click Get Feedback.",
+        whatIsStrong: null,
+        directFeedback: [],
+        socraticQuestions: [],
+        invitation: null,
+        stageComplete: false,
+        formatCheck: null,
+        topicCheck: null,
+        options: []
+      })
+      return
+    }
+
+    setLastSubmittedParagraph(paragraph)
+    setAwaitingRewrite(false)
     submitParagraph({
       paragraph,
       taskType: selectedTask.task,
@@ -117,8 +139,9 @@ export default function WritePage({
     // If this is a rewrite confirmation, clear history first
     if (message.startsWith('I will rewrite my paragraph')) {
       handleClearHistory()
-      // Add a visual marker in the conversation
       handleStudentMessage('— Starting over with new paragraph —')
+      setAwaitingRewrite(true)
+      setLastSubmittedParagraph(paragraph)
     }
     sendReply({
       message,
