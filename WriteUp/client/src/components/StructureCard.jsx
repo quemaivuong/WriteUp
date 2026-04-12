@@ -43,24 +43,6 @@ export default function StructureCard({ formatCheck, topicCheck, onAction, disab
             </div>
             <div style={{ display: 'flex', gap: '6px' }}>
               <button
-                onClick={() => onAction(
-                  `I will rewrite my paragraph. The correct topic is: "${taskInfo?.task || 'the assigned topic'}". The unit is: ${taskInfo?.topic || ''}.`,
-                  'student_revision'
-                )}
-                disabled={disabled}
-                style={{
-                  fontSize: '12px', padding: '5px 11px',
-                  borderRadius: 'var(--border-radius-md)',
-                  border: '0.5px solid var(--color-border-secondary)',
-                  background: 'var(--color-background-primary)',
-                  color: 'var(--color-text-primary)',
-                  cursor: disabled ? 'not-allowed' : 'pointer',
-                  opacity: disabled ? 0.5 : 1
-                }}
-              >
-                I'll rewrite
-              </button>
-              <button
                 onClick={() => onAction('I disagree that I am off topic — my paragraph is about the right subject because ', 'student_pushback')}
                 disabled={disabled}
                 style={{
@@ -116,21 +98,6 @@ export default function StructureCard({ formatCheck, topicCheck, onAction, disab
               {formatCheck.format_issue}
             </div>
             <div style={{ display: 'flex', gap: '6px' }}>
-              <button
-                onClick={() => onAction('I will fix the format of my writing.', 'student_revision')}
-                disabled={disabled}
-                style={{
-                  fontSize: '12px', padding: '5px 11px',
-                  borderRadius: 'var(--border-radius-md)',
-                  border: '0.5px solid var(--color-border-secondary)',
-                  background: 'var(--color-background-primary)',
-                  color: 'var(--color-text-primary)',
-                  cursor: disabled ? 'not-allowed' : 'pointer',
-                  opacity: disabled ? 0.5 : 1
-                }}
-              >
-                I'll fix the format
-              </button>
               <button
                 onClick={() => onAction('I disagree about the format — I think my format is correct because ', 'student_pushback')}
                 disabled={disabled}
