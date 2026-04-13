@@ -359,7 +359,7 @@ export default function WritePage({
               <div ref={dialogueEndRef} />
             </div>
 
-            {hasConversation && !isLoading && !canShare && (
+            {hasConversation && !isLoading && (
               <div style={{ padding: '12px 16px', borderTop: '1px solid var(--line)' }}>
                 <StudentReplyInput
                   onSend={handleReply}
@@ -370,16 +370,6 @@ export default function WritePage({
                   showKeepOption={pendingErrors.length > 0}
                   showPushbackOption={pendingErrors.length > 0}
                 />
-              </div>
-            )}
-
-            {canShare && (
-              <div style={{
-                padding: '14px 16px', borderTop: '1px solid var(--line)',
-                background: 'var(--green-light)', fontSize: '13px',
-                color: 'var(--green)', fontWeight: 500
-              }}>
-                ✓ Feedback complete. Share your draft to unlock peer review.
               </div>
             )}
 

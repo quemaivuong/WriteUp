@@ -1,4 +1,11 @@
+import { useState } from 'react'
+
 export default function StructureCard({ formatCheck, topicCheck, onAction, disabled, taskInfo }) {
+  const [topicDisagreeOpen, setTopicDisagreeOpen] = useState(false)
+  const [topicDisagreeText, setTopicDisagreeText] = useState('')
+  const [formatDisagreeOpen, setFormatDisagreeOpen] = useState(false)
+  const [formatDisagreeText, setFormatDisagreeText] = useState('')
+
   const hasFormatIssue = formatCheck && !formatCheck.correct_format_used
   const hasTopicIssue = topicCheck && !topicCheck.on_topic
 
@@ -41,23 +48,86 @@ export default function StructureCard({ formatCheck, topicCheck, onAction, disab
             }}>
               {topicCheck.topic_issue}
             </div>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <button
-                onClick={() => onAction('I disagree that I am off topic — my paragraph is about the right subject because ', 'student_pushback')}
-                disabled={disabled}
-                style={{
-                  fontSize: '12px', padding: '5px 11px',
-                  borderRadius: 'var(--border-radius-md)',
-                  border: '0.5px solid var(--color-border-secondary)',
-                  background: 'var(--color-background-primary)',
-                  color: 'var(--color-text-secondary)',
-                  cursor: disabled ? 'not-allowed' : 'pointer',
-                  opacity: disabled ? 0.5 : 1
-                }}
-              >
-                I disagree
-              </button>
-            </div>
+            {!topicDisagreeOpen ? (
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button
+                  onClick={() => setTopicDisagreeOpen(true)}
+                  disabled={disabled}
+                  style={{
+                    fontSize: '12px', padding: '5px 11px',
+                    borderRadius: 'var(--border-radius-md)',
+                    border: '0.5px solid var(--color-border-secondary)',
+                    background: 'var(--color-background-primary)',
+                    color: 'var(--color-text-secondary)',
+                    cursor: disabled ? 'not-allowed' : 'pointer',
+                    opacity: disabled ? 0.5 : 1
+                  }}
+                >
+                  I disagree
+                </button>
+              </div>
+            ) : (
+              <div style={{ marginTop: '8px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
+                  Explain why you think your paragraph is on topic:
+                </div>
+                <textarea
+                  value={topicDisagreeText}
+                  onChange={e => setTopicDisagreeText(e.target.value)}
+                  placeholder="I think my paragraph is on topic because..."
+                  rows={3}
+                  style={{
+                    width: '100%', fontSize: '13px',
+                    padding: '8px 10px',
+                    borderRadius: 'var(--border-radius-md)',
+                    border: '0.5px solid var(--color-border-secondary)',
+                    background: 'var(--color-background-secondary)',
+                    color: 'var(--color-text-primary)',
+                    resize: 'none', boxSizing: 'border-box',
+                    fontFamily: 'var(--font-sans)'
+                  }}
+                />
+                <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+                  <button
+                    onClick={() => {
+                      if (topicDisagreeText.trim()) {
+                        onAction(
+                          `I disagree that I am off topic — my paragraph is about the right subject because ${topicDisagreeText.trim()}`,
+                          'student_pushback'
+                        )
+                        setTopicDisagreeOpen(false)
+                        setTopicDisagreeText('')
+                      }
+                    }}
+                    disabled={disabled || !topicDisagreeText.trim()}
+                    style={{
+                      fontSize: '12px', padding: '5px 14px',
+                      borderRadius: 'var(--border-radius-md)',
+                      border: '0.5px solid var(--color-border-secondary)',
+                      background: 'var(--color-background-primary)',
+                      color: 'var(--color-text-primary)',
+                      cursor: 'pointer',
+                      opacity: (!topicDisagreeText.trim() || disabled) ? 0.4 : 1
+                    }}
+                  >
+                    Send
+                  </button>
+                  <button
+                    onClick={() => { setTopicDisagreeOpen(false); setTopicDisagreeText('') }}
+                    style={{
+                      fontSize: '12px', padding: '5px 14px',
+                      borderRadius: 'var(--border-radius-md)',
+                      border: '0.5px solid var(--color-border-secondary)',
+                      background: 'transparent',
+                      color: 'var(--color-text-secondary)',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -97,23 +167,86 @@ export default function StructureCard({ formatCheck, topicCheck, onAction, disab
             }}>
               {formatCheck.format_issue}
             </div>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <button
-                onClick={() => onAction('I disagree about the format — I think my format is correct because ', 'student_pushback')}
-                disabled={disabled}
-                style={{
-                  fontSize: '12px', padding: '5px 11px',
-                  borderRadius: 'var(--border-radius-md)',
-                  border: '0.5px solid var(--color-border-secondary)',
-                  background: 'var(--color-background-primary)',
-                  color: 'var(--color-text-secondary)',
-                  cursor: disabled ? 'not-allowed' : 'pointer',
-                  opacity: disabled ? 0.5 : 1
-                }}
-              >
-                I disagree
-              </button>
-            </div>
+            {!formatDisagreeOpen ? (
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button
+                  onClick={() => setFormatDisagreeOpen(true)}
+                  disabled={disabled}
+                  style={{
+                    fontSize: '12px', padding: '5px 11px',
+                    borderRadius: 'var(--border-radius-md)',
+                    border: '0.5px solid var(--color-border-secondary)',
+                    background: 'var(--color-background-primary)',
+                    color: 'var(--color-text-secondary)',
+                    cursor: disabled ? 'not-allowed' : 'pointer',
+                    opacity: disabled ? 0.5 : 1
+                  }}
+                >
+                  I disagree
+                </button>
+              </div>
+            ) : (
+              <div style={{ marginTop: '8px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
+                  Explain why you think your format is correct:
+                </div>
+                <textarea
+                  value={formatDisagreeText}
+                  onChange={e => setFormatDisagreeText(e.target.value)}
+                  placeholder="I think my format is correct because..."
+                  rows={3}
+                  style={{
+                    width: '100%', fontSize: '13px',
+                    padding: '8px 10px',
+                    borderRadius: 'var(--border-radius-md)',
+                    border: '0.5px solid var(--color-border-secondary)',
+                    background: 'var(--color-background-secondary)',
+                    color: 'var(--color-text-primary)',
+                    resize: 'none', boxSizing: 'border-box',
+                    fontFamily: 'var(--font-sans)'
+                  }}
+                />
+                <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+                  <button
+                    onClick={() => {
+                      if (formatDisagreeText.trim()) {
+                        onAction(
+                          `I disagree about the format — I think my format is correct because ${formatDisagreeText.trim()}`,
+                          'student_pushback'
+                        )
+                        setFormatDisagreeOpen(false)
+                        setFormatDisagreeText('')
+                      }
+                    }}
+                    disabled={disabled || !formatDisagreeText.trim()}
+                    style={{
+                      fontSize: '12px', padding: '5px 14px',
+                      borderRadius: 'var(--border-radius-md)',
+                      border: '0.5px solid var(--color-border-secondary)',
+                      background: 'var(--color-background-primary)',
+                      color: 'var(--color-text-primary)',
+                      cursor: 'pointer',
+                      opacity: (!formatDisagreeText.trim() || disabled) ? 0.4 : 1
+                    }}
+                  >
+                    Send
+                  </button>
+                  <button
+                    onClick={() => { setFormatDisagreeOpen(false); setFormatDisagreeText('') }}
+                    style={{
+                      fontSize: '12px', padding: '5px 14px',
+                      borderRadius: 'var(--border-radius-md)',
+                      border: '0.5px solid var(--color-border-secondary)',
+                      background: 'transparent',
+                      color: 'var(--color-text-secondary)',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
