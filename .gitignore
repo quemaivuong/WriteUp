@@ -1,0 +1,27 @@
+# Environment variables — everywhere
+.env
+.env.local
+.env.development
+.env.production
+.env*.local
+
+# Never commit API keys
+**/secrets.*
+**/api-key*
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Build outputs
+dist/
+build/
+.next/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
