@@ -16,7 +16,8 @@ export default function Navbar({ studentName, grade, draftSubmitted }) {
       position: 'sticky',
       top: 0,
       zIndex: 100,
-      boxShadow: '0 1px 0 rgba(255,255,255,0.06)'
+      boxShadow: '0 1px 0 rgba(255,255,255,0.06)',
+      borderBottom: '1px solid rgba(255,255,255,0.08)'
     }}>
       {/* Logo */}
       <div style={{
@@ -63,10 +64,22 @@ export default function Navbar({ studentName, grade, draftSubmitted }) {
               color: onPeer ? '#faf8f4' : 'rgba(250,248,244,0.55)',
               background: onPeer ? '#2a7c6f' : 'transparent',
               transition: 'all 0.2s',
-              textDecoration: 'none'
+              textDecoration: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
             }}
           >
             👥 Peer Workshop
+            {!onPeer && (
+              <span style={{
+                width: '7px', height: '7px',
+                borderRadius: '50%',
+                background: '#b87d2a',
+                display: 'inline-block',
+                flexShrink: 0
+              }} />
+            )}
           </Link>
         ) : (
           <span
@@ -96,9 +109,9 @@ export default function Navbar({ studentName, grade, draftSubmitted }) {
       }}>
         <span style={{
           background: 'rgba(255,255,255,0.1)',
-          padding: '3px 10px',
+          padding: '4px 12px',
           borderRadius: '99px',
-          fontSize: '11px',
+          fontSize: '12px',
           fontWeight: 600,
           color: '#4ca898'
         }}>
