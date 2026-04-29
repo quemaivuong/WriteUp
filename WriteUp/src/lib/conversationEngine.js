@@ -954,14 +954,14 @@ async function processConversationTurn({
                            (parsed.socratic_questions?.length > 0)
     systemMessageText += "The topic needs attention — see the card below."
     if (hasOtherErrors) {
-      systemMessageText += "\n\nThere are also grammar and vocabulary points to look at. Fix the topic first and we will move on to those next."
+      systemMessageText += "\n\nThere are other things to look at too. Fix this first and we will continue from there."
     }
   } else if (parsed.format_check && !parsed.format_check.correct_format_used) {
     const hasOtherErrors = (parsed.direct_feedback?.length > 0) ||
                            (parsed.socratic_questions?.length > 0)
     systemMessageText += "The format needs attention — see the card below."
     if (hasOtherErrors) {
-      systemMessageText += "\n\nThere are also grammar and vocabulary points to look at. Fix the format first and we will move on to those next."
+      systemMessageText += "\n\nThere are other things to look at too. Fix this first and we will continue from there."
     }
   } else {
     // Normal flow
