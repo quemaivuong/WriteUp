@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 // ── TASK DATA ─────────────────────────────────────────────────────
 // Confirmed from textbook review for grades 6, 7, 8.
 // Grades 9-12 use Grade 8 tasks as placeholders.
@@ -69,23 +71,23 @@ const TASKS = {
           { unit: 4, topic: 'Ethnic groups', task: 'Write a paragraph about helping your family' },
           { unit: 5, topic: 'Customs and traditions', task: 'Write an advice email about festival dos and don\'ts' },
           { unit: 9, topic: 'Natural disasters', task: 'Write instructions for before, during, and after a flood' },
-          { unit: 12, topic: 'Life on other planets', task: 'Write a paragraph about imaginary aliens' }
+          { unit: 12, topic: 'Life on other planets', task: 'Write a paragraph about imaginary aliens', starter: 'Creatures living on __ are called __' }
         ]
       },
       advantagesDisadvantages: {
         label: 'Advantages / disadvantages paragraph',
         units: [
-          { unit: 2, topic: 'Life in the countryside', task: 'Write about what you like or dislike about countryside life' },
+          { unit: 2, topic: 'Life in the countryside', task: 'Write about what you like or dislike about countryside life', starter: 'There are some things I like / dislike about life in the countryside.' },
           { unit: 6, topic: 'Lifestyles', task: 'Write about the advantages or disadvantages of online learning' },
-          { unit: 8, topic: 'Shopping', task: 'Write about the advantages or disadvantages of a type of shopping' },
+          { unit: 8, topic: 'Shopping', task: 'Write about the advantages or disadvantages of a type of shopping', starter: 'Shopping ... is interesting / convenient / safe ...' },
           { unit: 10, topic: 'Communication in the future', task: 'Write a paragraph about a modern communication tool' }
         ]
       },
       agreeDisagree: {
         label: 'Opinion paragraph',
         units: [
-          { unit: 3, topic: 'Teenagers', task: 'Write a paragraph about the cause of your stress and solutions' },
-          { unit: 11, topic: 'Science and technology', task: 'Write a paragraph: do you agree robots will replace teachers?' }
+          { unit: 3, topic: 'Teenagers', task: 'Write a paragraph about the cause of your stress and solutions', starter: 'I often feel stressed because of' },
+          { unit: 11, topic: 'Science and technology', task: 'Write a paragraph: do you agree robots will replace teachers?', starter: 'I agree / disagree that robots will soon replace teachers at school. First, they' }
         ]
       },
       noticeWriting: {
@@ -106,6 +108,7 @@ for (let g = 9; g <= 12; g++) {
 export default function TaskSelector({ grade, onSelect, disabled }) {
   const gradeTasks = TASKS[grade] || TASKS[8]
   const modes = Object.entries(gradeTasks.modes)
+  const [hoveredKey, setHoveredKey] = useState(null)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -122,47 +125,51 @@ export default function TaskSelector({ grade, onSelect, disabled }) {
             {modeData.label}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {modeData.units.map(u => (
-              <button
-                key={`${modeKey}-${u.unit}`}
-                onClick={() => onSelect({
-                  mode: modeKey,
-                  type: modeKey,
-                  unit: u.unit,
-                  topic: u.topic,
-                  task: u.task,
-                  title: u.task
-                })}
-                disabled={disabled}
-                style={{
-                  textAlign: 'left',
-                  padding: '10px 14px',
-                  borderRadius: '8px',
-                  border: '1.5px solid var(--line)',
-                  background: 'white',
-                  cursor: disabled ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.15s',
-                  opacity: disabled ? 0.5 : 1
-                }}
-                onMouseEnter={e => {
-                  if (!disabled) {
-                    e.currentTarget.style.borderColor = 'var(--teal-mid)'
-                    e.currentTarget.style.background = 'var(--teal-light)'
-                  }
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = 'var(--line)'
-                  e.currentTarget.style.background = 'white'
-                }}
-              >
-                <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ink)' }}>
-                  Unit {u.unit} — {u.topic}
-                </div>
-                <div style={{ fontSize: '12px', color: 'var(--ink3)', marginTop: '2px' }}>
-                  {u.task}
-                </div>
-              </button>
-            ))}
+            {modeData.units.map(u => {
+              const key = `${modeKey}-${u.unit}`
+              const isHovered = hoveredKey === key
+              return (
+                <button
+                  key={key}
+                  onClick={() => onSelect({
+                    mode: modeKey,
+                    type: modeKey,
+                    unit: u.unit,
+                    topic: u.topic,
+                    task: u.task,
+                    title: u.task
+                  })}
+                  disabled={disabled}
+                  style={{
+                    textAlign: 'left',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    border: `1.5px solid ${isHovered ? 'var(--teal-mid)' : 'var(--line)'}`,
+                    background: isHovered ? 'var(--teal-light)' : 'white',
+                    cursor: disabled ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.15s',
+                    opacity: disabled ? 0.5 : 1
+                  }}
+                  onMouseEnter={() => { if (!disabled) setHoveredKey(key) }}
+                  onMouseLeave={() => setHoveredKey(null)}
+                >
+                  <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ink)' }}>
+                    Unit {u.unit} — {u.topic}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--ink3)', marginTop: '2px' }}>
+                    {u.task}
+                  </div>
+                  {isHovered && u.starter && (
+                    <div style={{
+                      fontSize: '11px', color: 'var(--ink3)',
+                      fontStyle: 'italic', marginTop: '6px'
+                    }}>
+                      Starter: {u.starter}
+                    </div>
+                  )}
+                </button>
+              )
+            })}
           </div>
         </div>
       ))}
