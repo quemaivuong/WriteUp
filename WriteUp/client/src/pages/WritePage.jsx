@@ -333,7 +333,10 @@ export default function WritePage({
                   ) : (
                     <DialogueBubble role={turn.role} content={turn.content} />
                   )}
-                  {turn.role === 'system' && (
+                  {turn.role === 'system' && (() => {
+                    const isFirstSystemTurn = conversationHistory.filter(t => t.role === 'system').indexOf(turn) === 0
+                    const showDetailedCards = !isFirstSystemTurn || feedbackFocus !== null
+                    return (
                     <>
                       <StructureCard
                         formatCheck={turn.formatCheck}
@@ -342,7 +345,7 @@ export default function WritePage({
                         disabled={isLoading}
                         taskInfo={selectedTask}
                       />
-                      {(!turn.topicCheck || turn.topicCheck.on_topic) && (
+                      {(!turn.topicCheck || turn.topicCheck.on_topic) && showDetailedCards && (
                         <>
                           <FeedbackCard
                             errors={turn.directFeedback}
@@ -366,29 +369,23 @@ export default function WritePage({
                           )}
                         </>
                       )}
+                      {isFirstSystemTurn && !feedbackFocus && !isLoading &&
+                       (!turn.topicCheck || turn.topicCheck.on_topic) && (
+                        <FeedbackFocusSelector
+                          onSelect={handleFeedbackFocusSelect}
+                          disabled={isLoading}
+                          errorSummary={turn}
+                        />
+                      )}
                     </>
-                  )}
+                    )
+                  })()}
                 </div>
               ))}
 
               {isLoading && <DialogueBubble role="system" isLoading />}
               <div ref={dialogueEndRef} />
             </div>
-
-            {/* Show focus selector after first analysis turn if no focus chosen yet */}
-            {conversationHistory.length > 0 &&
-             !feedbackFocus &&
-             !isLoading &&
-             conversationHistory[conversationHistory.length - 1]?.role === 'system' &&
-             conversationHistory.filter(t => t.role === 'student').length === 0 && (
-              <div style={{ padding: '12px 16px', borderTop: '1px solid var(--line)' }}>
-                <FeedbackFocusSelector
-                  onSelect={handleFeedbackFocusSelect}
-                  disabled={isLoading}
-                  errorSummary={conversationHistory[conversationHistory.length - 1]}
-                />
-              </div>
-            )}
 
             {hasConversation && !isLoading && (
               <div style={{ padding: '12px 16px', borderTop: '1px solid var(--line)' }}>

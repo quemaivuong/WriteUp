@@ -295,13 +295,14 @@ FEEDBACK FOCUS: ${feedbackFocus}
 If focus is "analyze":
   Analyze the paragraph for ALL error types.
   Return the normal JSON structure with all errors detected.
-  Set overall_message to a brief summary like:
-  "I found [N] grammar issue(s), [N] vocabulary pattern(s),
-   and [N] logic suggestion(s)."
-  Do NOT give detailed corrections yet — just detect and categorize.
+  Set overall_message to ONLY this summary — nothing else in the bubble:
+  "I found [N] grammar issue(s)[, N vocabulary pattern(s)][, and N logic suggestion(s)].
+   What would you like to work on first?"
+  Do NOT include what_is_strong in the bubble for analyze turns.
+  Keep direct_feedback and socratic_questions populated for selector counts
+  but they will not be shown as cards until the student selects a focus.
   Keep direct_feedback messages to one SHORT sentence each.
   Keep socratic_questions to one SHORT sentence each.
-  The student will choose what to focus on next.
 
 If focus is "I want feedback on: grammar":
   Return ONLY grammar errors with full detailed feedback.
@@ -944,7 +945,11 @@ async function processConversationTurn({
 
   let systemMessageText = ""
 
-  if (parsed.topic_check && !parsed.topic_check.on_topic) {
+  // Analyze turn — show only the summary message, no error details in bubble
+  if (feedbackFocus === 'analyze' ||
+      (parsed.overall_message && parsed.overall_message.includes('What would you like to work on'))) {
+    systemMessageText = parsed.overall_message || parsed.what_is_strong || ''
+  } else if (parsed.topic_check && !parsed.topic_check.on_topic) {
     systemMessageText += "The topic needs attention — see the card below."
   } else if (parsed.format_check && !parsed.format_check.correct_format_used) {
     systemMessageText += "The format needs attention — see the card below."
