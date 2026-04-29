@@ -65,6 +65,11 @@ export default function App() {
         options: systemResponse.options || [],
         formatCheck: systemResponse.formatCheck || null,
         topicCheck: systemResponse.topicCheck || null,
+        showFocusChoice: systemResponse.showFocusChoice || false,
+        focusOptions: systemResponse.focusOptions || [],
+        hasStructureIssue: systemResponse.hasStructureIssue || false,
+        structureIssueType: systemResponse.structureIssueType || null,
+        conversationalResponse: systemResponse.conversationalResponse || null,
       }
     ])
     console.log('NEW TURN STORED:', systemResponse.systemMessage?.slice(0, 50))

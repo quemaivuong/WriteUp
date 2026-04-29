@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function StudentReplyInput({
   onSend,
@@ -7,9 +7,14 @@ export default function StudentReplyInput({
   disabled,
   placeholder,
   showKeepOption,
-  showPushbackOption
+  showPushbackOption,
+  initialValue
 }) {
   const [value, setValue] = useState('')
+
+  useEffect(() => {
+    if (initialValue) setValue(initialValue)
+  }, [initialValue])
 
   function handleSend() {
     if (!value.trim()) return

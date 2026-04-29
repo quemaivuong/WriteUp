@@ -3,11 +3,7 @@ import TaskSelector from '../components/TaskSelector'
 import WritingArea from '../components/WritingArea'
 import ActionButtons from '../components/ActionButtons'
 import DialogueBubble from '../components/DialogueBubble'
-import FeedbackCard from '../components/FeedbackCard'
-import StructureCard from '../components/StructureCard'
-import SocraticCard from '../components/SocraticCard'
 import StudentReplyInput from '../components/StudentReplyInput'
-import FeedbackFocusSelector from '../components/FeedbackFocusSelector'
 import useConversation from '../hooks/useConversation'
 
 const WORD_TARGETS = {
@@ -27,6 +23,7 @@ export default function WritePage({
   const [lastSubmittedParagraph, setLastSubmittedParagraph] = useState('')
   const [awaitingRewrite, setAwaitingRewrite] = useState(false)
   const [feedbackFocus, setFeedbackFocus] = useState(null)
+  const [replyPreFill, setReplyPreFill] = useState('')
   const dialogueEndRef = useRef(null)
 
   const {
@@ -76,6 +73,7 @@ export default function WritePage({
 
     setLastSubmittedParagraph(paragraph)
     setAwaitingRewrite(false)
+    setFeedbackFocus(null)
     submitParagraph({
       paragraph,
       taskType: selectedTask.task,
@@ -86,6 +84,7 @@ export default function WritePage({
   }
 
   function handleReply(message) {
+    setReplyPreFill('')
     sendReply({
       message,
       currentParagraph: paragraph,
@@ -96,6 +95,7 @@ export default function WritePage({
   }
 
   function handlePushback(message) {
+    setReplyPreFill('')
     sendPushback({
       message,
       currentParagraph: paragraph,
@@ -316,73 +316,74 @@ export default function WritePage({
                 </div>
               )}
 
-              {conversationHistory.map((turn, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {turn.content === '— Starting over with new paragraph —' ? (
-                    <div style={{
-                      textAlign: 'center',
-                      fontSize: '11px',
-                      color: 'var(--color-text-secondary)',
-                      padding: '8px 0',
-                      borderTop: '0.5px solid var(--color-border-tertiary)',
-                      borderBottom: '0.5px solid var(--color-border-tertiary)',
-                      margin: '4px 0'
-                    }}>
-                      Starting fresh — new paragraph below
-                    </div>
-                  ) : (
-                    <DialogueBubble role={turn.role} content={turn.content} />
-                  )}
-                  {turn.role === 'system' && (() => {
-                    const isFirstSystemTurn = conversationHistory.filter(t => t.role === 'system').indexOf(turn) === 0
-                    const showDetailedCards = !isFirstSystemTurn || feedbackFocus !== null
-                    return (
-                    <>
-                      <StructureCard
-                        formatCheck={turn.formatCheck}
-                        topicCheck={turn.topicCheck}
-                        onAction={handleCardAction}
-                        disabled={isLoading}
-                        taskInfo={selectedTask}
-                      />
-                      {(!turn.topicCheck || turn.topicCheck.on_topic) && showDetailedCards && (
-                        <>
-                          <FeedbackCard
-                            errors={turn.directFeedback}
-                            onAction={handleCardAction}
-                            disabled={isLoading}
-                          />
-                          <SocraticCard
-                            questions={turn.socraticQuestions}
-                            onAction={handleCardAction}
-                            disabled={isLoading}
-                          />
-                          {turn.invitation && (
-                            <div style={{
-                              fontSize: '13px',
-                              color: 'var(--color-text-secondary)',
-                              fontStyle: 'italic',
-                              padding: '4px 0'
-                            }}>
-                              {turn.invitation}
-                            </div>
-                          )}
-                        </>
-                      )}
-                      {isFirstSystemTurn && !feedbackFocus && !isLoading &&
-                       (!turn.topicCheck || turn.topicCheck.on_topic) &&
-                       (!turn.formatCheck || turn.formatCheck.correct_format_used) && (
-                        <FeedbackFocusSelector
-                          onSelect={handleFeedbackFocusSelect}
-                          disabled={isLoading}
-                          errorSummary={turn}
-                        />
-                      )}
-                    </>
-                    )
-                  })()}
-                </div>
-              ))}
+              {conversationHistory.map((turn, i) => {
+                const isLastSystemTurn = turn.role === 'system' && turn === lastSystemTurn
+                return (
+                  <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {turn.content === '— Starting over with new paragraph —' ? (
+                      <div style={{
+                        textAlign: 'center',
+                        fontSize: '11px',
+                        color: 'var(--color-text-secondary)',
+                        padding: '8px 0',
+                        borderTop: '0.5px solid var(--color-border-tertiary)',
+                        borderBottom: '0.5px solid var(--color-border-tertiary)',
+                        margin: '4px 0'
+                      }}>
+                        Starting fresh — new paragraph below
+                      </div>
+                    ) : (
+                      <DialogueBubble role={turn.role} content={turn.content} />
+                    )}
+                    {isLastSystemTurn && !isLoading && (
+                      <>
+                        {turn.hasStructureIssue && (
+                          <button
+                            onClick={() => setReplyPreFill(
+                              turn.structureIssueType === 'topic'
+                                ? 'I disagree — I think my paragraph is on topic because '
+                                : 'I disagree — I think my format is correct because '
+                            )}
+                            style={{
+                              fontSize: '12px', padding: '5px 12px',
+                              borderRadius: '7px',
+                              border: '1.5px solid var(--line)',
+                              background: 'transparent',
+                              color: 'var(--ink3)',
+                              cursor: 'pointer',
+                              alignSelf: 'flex-start'
+                            }}
+                          >
+                            I disagree
+                          </button>
+                        )}
+                        {turn.showFocusChoice && !feedbackFocus && (
+                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
+                            {(turn.focusOptions || []).map(opt => (
+                              <button
+                                key={opt.key}
+                                onClick={() => handleFeedbackFocusSelect(opt.key)}
+                                disabled={opt.disabled}
+                                style={{
+                                  fontSize: '12px', padding: '5px 14px',
+                                  borderRadius: '7px',
+                                  border: 'none',
+                                  background: opt.disabled ? 'var(--paper2)' : '#2a7c6f',
+                                  color: opt.disabled ? 'var(--ink3)' : 'white',
+                                  cursor: opt.disabled ? 'not-allowed' : 'pointer',
+                                  fontWeight: '500'
+                                }}
+                              >
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )
+              })}
 
               {isLoading && <DialogueBubble role="system" isLoading />}
               <div ref={dialogueEndRef} />
@@ -398,6 +399,7 @@ export default function WritePage({
                   placeholder="Respond to the feedback… (Ctrl+Enter to send)"
                   showKeepOption={pendingErrors.length > 0}
                   showPushbackOption={pendingErrors.length > 0}
+                  initialValue={replyPreFill}
                 />
               </div>
             )}
