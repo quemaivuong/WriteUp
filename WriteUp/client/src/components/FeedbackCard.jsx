@@ -9,11 +9,6 @@ function ErrorCard({ error, index, onAction, disabled }) {
     setActiveAction('fix')
   }
 
-  function handleKeep() {
-    onAction(`I'll keep "${error.surface}" as is.`, 'student_keeps', error.surface)
-    setActiveAction(null)
-  }
-
   function handleDisagree() {
     const prefill = `I disagree — I think "${error.surface}" is correct because `
     setReplyText(prefill)
@@ -98,41 +93,26 @@ function ErrorCard({ error, index, onAction, disabled }) {
               onClick={handleFixThis}
               disabled={disabled}
               style={{
-                fontSize: '12px', padding: '5px 11px',
-                borderRadius: 'var(--border-radius-md)',
-                border: '0.5px solid var(--color-border-secondary)',
-                background: 'var(--color-background-primary)',
-                color: 'var(--color-text-primary)',
-                cursor: disabled ? 'not-allowed' : 'pointer',
-                opacity: disabled ? 0.5 : 1
+                fontSize: '12px', padding: '6px 14px',
+                borderRadius: '7px',
+                border: 'none',
+                background: disabled ? '#a0c4bf' : '#2a7c6f',
+                color: 'white',
+                fontWeight: '500',
+                cursor: disabled ? 'not-allowed' : 'pointer'
               }}
             >
               Fix this
             </button>
             <button
-              onClick={handleKeep}
-              disabled={disabled}
-              style={{
-                fontSize: '12px', padding: '5px 11px',
-                borderRadius: 'var(--border-radius-md)',
-                border: '0.5px solid var(--color-border-secondary)',
-                background: 'var(--color-background-primary)',
-                color: 'var(--color-text-secondary)',
-                cursor: disabled ? 'not-allowed' : 'pointer',
-                opacity: disabled ? 0.5 : 1
-              }}
-            >
-              Keep as is
-            </button>
-            <button
               onClick={handleDisagree}
               disabled={disabled}
               style={{
-                fontSize: '12px', padding: '5px 11px',
-                borderRadius: 'var(--border-radius-md)',
-                border: '0.5px solid var(--color-border-secondary)',
-                background: 'var(--color-background-primary)',
-                color: 'var(--color-text-secondary)',
+                fontSize: '12px', padding: '6px 14px',
+                borderRadius: '7px',
+                border: '1.5px solid var(--line)',
+                background: 'transparent',
+                color: 'var(--ink3)',
                 cursor: disabled ? 'not-allowed' : 'pointer',
                 opacity: disabled ? 0.5 : 1
               }}
