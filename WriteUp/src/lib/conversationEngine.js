@@ -1114,6 +1114,7 @@ async function processConversationTurn({
     whatImproved:          parsed.what_improved || null,
     formatCheck:           parsed.format_check || null,
     topicCheck:            parsed.topic_check || null,
+    options:               parsed.options || [],
     sessionPatterns,
     patternAlerts,
     sessionLog:            updatedLog,
