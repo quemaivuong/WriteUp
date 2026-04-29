@@ -290,12 +290,35 @@ FORMAT AND TOPIC CHECK — evaluate before grammar:
 If format or topic issues exist, they are MORE important than
 grammar errors and should be addressed first.
 
-FEEDBACK FOCUS — the student has chosen to focus on: ${feedbackFocus}
+FEEDBACK FOCUS: ${feedbackFocus}
 
-If focus is "grammar": report ONLY grammar errors. No vocabulary or logic questions.
-If focus is "vocabulary": report ONLY vocabulary repetition. No grammar or logic.
-If focus is "ideas": report ONLY logic and coherence issues. No grammar or vocabulary.
-If focus is "all": use normal priority order (grammar first, then vocabulary, then logic).
+If focus is "analyze":
+  Analyze the paragraph for ALL error types.
+  Return the normal JSON structure with all errors detected.
+  Set overall_message to a brief summary like:
+  "I found [N] grammar issue(s), [N] vocabulary pattern(s),
+   and [N] logic suggestion(s)."
+  Do NOT give detailed corrections yet — just detect and categorize.
+  Keep direct_feedback messages to one SHORT sentence each.
+  Keep socratic_questions to one SHORT sentence each.
+  The student will choose what to focus on next.
+
+If focus is "I want feedback on: grammar":
+  Return ONLY grammar errors with full detailed feedback.
+  Empty socratic_questions array.
+
+If focus is "I want feedback on: vocabulary":
+  Return ONLY vocabulary socratic questions with full detail.
+  Empty direct_feedback array.
+
+If focus is "I want feedback on: ideas":
+  Return ONLY logic/coherence full_socratic questions.
+  Empty direct_feedback array.
+
+If focus is "I want feedback on: all":
+  Use normal priority order with full detail.
+  Grammar first, then vocabulary, then logic.
+  Max 2 errors total.
 
 STRICT LIMIT: Report a maximum of 2 errors total per response.
 Priority order:

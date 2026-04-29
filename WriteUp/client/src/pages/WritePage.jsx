@@ -55,7 +55,7 @@ export default function WritePage({
   }
 
   function handleSubmit() {
-    if (!selectedTask || !paragraph.trim() || !feedbackFocus) return
+    if (!selectedTask || !paragraph.trim()) return
 
     if (awaitingRewrite && paragraph.trim() === lastSubmittedParagraph.trim()) {
       handleStudentMessage('I submitted without changing my paragraph.')
@@ -81,7 +81,7 @@ export default function WritePage({
       taskType: selectedTask.task,
       mode: selectedTask.mode,
       unitTopic: selectedTask.topic,
-      feedbackFocus
+      feedbackFocus: 'analyze'
     })
   }
 
@@ -149,6 +149,17 @@ export default function WritePage({
     }
     sendReply({
       message,
+      currentParagraph: paragraph,
+      taskType: selectedTask?.task,
+      mode: selectedTask?.mode,
+      unitTopic: selectedTask?.topic
+    })
+  }
+
+  function handleFeedbackFocusSelect(focus) {
+    setFeedbackFocus(focus)
+    sendReply({
+      message: `I want feedback on: ${focus}`,
       currentParagraph: paragraph,
       taskType: selectedTask?.task,
       mode: selectedTask?.mode,
@@ -261,50 +272,11 @@ export default function WritePage({
               </div>
             )}
 
-            {console.log('FocusSelector conditions:', {
-              paragraphLength: paragraph.trim().length,
-              feedbackFocus,
-              isLoading,
-              selectedTask: !!selectedTask
-            })}
-
-            {paragraph.trim().length > 20 && !feedbackFocus && !isLoading && (
-              <FeedbackFocusSelector
-                onSelect={setFeedbackFocus}
-                disabled={isLoading}
-              />
-            )}
-
-            {feedbackFocus && (
-              <div style={{
-                display: 'flex', alignItems: 'center',
-                gap: '10px', flexWrap: 'wrap'
-              }}>
-                <div style={{
-                  fontSize: '13px', color: 'var(--ink3)',
-                  padding: '6px 12px',
-                  background: 'var(--teal-light)',
-                  borderRadius: '99px',
-                  border: '1px solid var(--teal-mid)'
-                }}>
-                  Focus: {feedbackFocus === 'grammar' ? 'Grammar' :
-                           feedbackFocus === 'vocabulary' ? 'Vocabulary' :
-                           feedbackFocus === 'ideas' ? 'Ideas and flow' : 'Everything'}
-                </div>
-                <button
-                  onClick={() => setFeedbackFocus(null)}
-                  className="btn btn-ghost btn-sm"
-                >
-                  Change
-                </button>
-              </div>
-            )}
-
             <ActionButtons
               onSubmitParagraph={handleSubmit}
               onShareDraft={handleShare}
               onNewTask={handleNewTask}
-              canSubmit={paragraph.trim().length > 20 && !!feedbackFocus && !isLoading}
+              canSubmit={paragraph.trim().length > 20 && !isLoading}
               canShare={canShare}
               isLoading={isLoading}
             />
@@ -402,6 +374,21 @@ export default function WritePage({
               {isLoading && <DialogueBubble role="system" isLoading />}
               <div ref={dialogueEndRef} />
             </div>
+
+            {/* Show focus selector after first analysis turn if no focus chosen yet */}
+            {conversationHistory.length > 0 &&
+             !feedbackFocus &&
+             !isLoading &&
+             conversationHistory[conversationHistory.length - 1]?.role === 'system' &&
+             conversationHistory.filter(t => t.role === 'student').length === 0 && (
+              <div style={{ padding: '12px 16px', borderTop: '1px solid var(--line)' }}>
+                <FeedbackFocusSelector
+                  onSelect={handleFeedbackFocusSelect}
+                  disabled={isLoading}
+                  errorSummary={conversationHistory[conversationHistory.length - 1]}
+                />
+              </div>
+            )}
 
             {hasConversation && !isLoading && (
               <div style={{ padding: '12px 16px', borderTop: '1px solid var(--line)' }}>
