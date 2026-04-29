@@ -903,16 +903,20 @@ async function processConversationTurn({
 
   if (hasTopicIssue || hasFormatIssue) {
     const issueType = hasTopicIssue ? 'topic' : 'format'
+    const issueDetail = hasTopicIssue
+      ? parsed.topic_check.topic_issue
+      : parsed.format_check.format_issue
+
     const otherParts = []
     if (grammarCount > 0) otherParts.push(`${grammarCount} grammar issue${grammarCount > 1 ? 's' : ''}`)
     if (vocabCount > 0) otherParts.push(`${vocabCount} vocabulary pattern${vocabCount > 1 ? 's' : ''}`)
     if (logicCount > 0) otherParts.push(`${logicCount} idea suggestion${logicCount > 1 ? 's' : ''}`)
 
     const otherText = otherParts.length > 0
-      ? ` I also found ${otherParts.join(' and ')}.`
+      ? `\n\nThere are also ${otherParts.join(' and ')} to look at. Fix the ${issueType} first and we can continue from there.`
       : ''
 
-    systemMessageText = `I found a ${issueType} problem.${otherText} Fix the ${issueType} first — details are in the card below. Once that is done we can look at the rest.`
+    systemMessageText = `${issueDetail}${otherText}`
 
   } else {
     // Normal flow — no topic or format issues

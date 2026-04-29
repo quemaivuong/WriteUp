@@ -338,24 +338,28 @@ export default function WritePage({
                     {isLastSystemTurn && !isLoading && (
                       <>
                         {turn.hasStructureIssue && (
-                          <button
-                            onClick={() => setReplyPreFill(
-                              turn.structureIssueType === 'topic'
-                                ? 'I disagree — I think my paragraph is on topic because '
-                                : 'I disagree — I think my format is correct because '
-                            )}
-                            style={{
-                              fontSize: '12px', padding: '5px 12px',
-                              borderRadius: '7px',
-                              border: '1.5px solid var(--line)',
-                              background: 'transparent',
-                              color: 'var(--ink3)',
-                              cursor: 'pointer',
-                              alignSelf: 'flex-start'
-                            }}
-                          >
-                            I disagree
-                          </button>
+                          <div style={{ display: 'flex', gap: '8px', paddingTop: '4px' }}>
+                            <button
+                              onClick={() => setReplyPreFill(
+                                turn.structureIssueType === 'topic'
+                                  ? 'I disagree — I think my paragraph is on topic because '
+                                  : 'I disagree — I think my format is correct because '
+                              )}
+                              disabled={isLoading}
+                              style={{
+                                padding: '6px 14px',
+                                borderRadius: '7px',
+                                border: '1.5px solid var(--teal-mid)',
+                                background: 'white',
+                                color: 'var(--teal)',
+                                fontSize: '12px',
+                                fontWeight: '500',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              I disagree with this
+                            </button>
+                          </div>
                         )}
                         {turn.showFocusChoice && !feedbackFocus && (
                           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
