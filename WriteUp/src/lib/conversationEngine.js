@@ -725,10 +725,9 @@ If you need to list items, use numbers: 1. 2. 3.
 If you need emphasis, use plain words like "important" or
 write the word in CAPITALS.
 
-STRICT ERROR LIMIT: Maximum 2 errors in direct_feedback.
-Maximum 1 item in socratic_questions.
-Never exceed these limits regardless of how many errors exist.
-Pick the most important ones only.
+STRICT LIMIT: Return a maximum of 2 items in direct_feedback and a maximum of 1 item in socratic_questions.
+Never exceed these limits. Pick the most important errors only.
+If there are more errors, note in overall_message that there are more to address after these are fixed.
 
 If errors remain after revision:
 - Put grammar errors in direct_feedback with the same format as initial feedback
