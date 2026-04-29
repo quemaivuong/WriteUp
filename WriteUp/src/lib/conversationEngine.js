@@ -945,48 +945,56 @@ async function processConversationTurn({
 
   let systemMessageText = ""
 
-  // Analyze turn — show only the summary message, no error details in bubble
-  if (feedbackFocus === 'analyze' ||
-      (parsed.overall_message && parsed.overall_message.includes('What would you like to work on'))) {
-    systemMessageText = parsed.overall_message || parsed.what_is_strong || ''
-  } else if (parsed.topic_check && !parsed.topic_check.on_topic) {
-    const hasOtherErrors = (parsed.direct_feedback?.length > 0) ||
-                           (parsed.socratic_questions?.length > 0)
-    systemMessageText += "The topic needs attention — see the card below."
-    if (hasOtherErrors) {
-      systemMessageText += "\n\nThere are other things to look at too. Fix this first and we will continue from there."
-    }
-  } else if (parsed.format_check && !parsed.format_check.correct_format_used) {
-    const hasOtherErrors = (parsed.direct_feedback?.length > 0) ||
-                           (parsed.socratic_questions?.length > 0)
-    systemMessageText += "The format needs attention — see the card below."
-    if (hasOtherErrors) {
-      systemMessageText += "\n\nThere are other things to look at too. Fix this first and we will continue from there."
-    }
+  const hasTopicIssue = parsed.topic_check && !parsed.topic_check.on_topic
+  const hasFormatIssue = parsed.format_check && !parsed.format_check.correct_format_used
+  const grammarCount = parsed.direct_feedback?.length || 0
+  const vocabCount = parsed.socratic_questions?.filter(q => q.track === 'soft_socratic').length || 0
+  const logicCount = parsed.socratic_questions?.filter(q => q.track === 'full_socratic').length || 0
+
+  if (hasTopicIssue || hasFormatIssue) {
+    const issueType = hasTopicIssue ? 'topic' : 'format'
+    const otherParts = []
+    if (grammarCount > 0) otherParts.push(`${grammarCount} grammar issue${grammarCount > 1 ? 's' : ''}`)
+    if (vocabCount > 0) otherParts.push(`${vocabCount} vocabulary pattern${vocabCount > 1 ? 's' : ''}`)
+    if (logicCount > 0) otherParts.push(`${logicCount} idea suggestion${logicCount > 1 ? 's' : ''}`)
+
+    const otherText = otherParts.length > 0
+      ? ` I also found ${otherParts.join(' and ')}.`
+      : ''
+
+    systemMessageText = `I found a ${issueType} problem.${otherText} Fix the ${issueType} first — details are in the card below. Once that is done we can look at the rest.`
+
   } else {
-    // Normal flow
-    if (parsed.what_is_strong) {
-      systemMessageText += parsed.what_is_strong + "\n\n"
+    // Normal flow — no topic or format issues
+    const parts = []
+    if (grammarCount > 0) parts.push(`${grammarCount} grammar issue${grammarCount > 1 ? 's' : ''}`)
+    if (vocabCount > 0) parts.push(`${vocabCount} vocabulary pattern${vocabCount > 1 ? 's' : ''}`)
+    if (logicCount > 0) parts.push(`${logicCount} idea suggestion${logicCount > 1 ? 's' : ''}`)
+
+    if (parts.length > 0 && (!feedbackFocus || feedbackFocus === 'analyze')) {
+      systemMessageText = `I found ${parts.join(', ')}. What would you like to work on first?`
+    } else {
+      // Detailed feedback turn
+      if (parsed.what_is_strong) systemMessageText += parsed.what_is_strong + "\n\n"
+      if (parsed.direct_feedback?.length > 0) {
+        parsed.direct_feedback.forEach(fb => {
+          if (fb.message) systemMessageText += fb.message + "\n\n"
+        })
+      }
+      if (parsed.socratic_questions?.length > 0) {
+        parsed.socratic_questions.forEach(q => {
+          if (q.question) systemMessageText += q.question + "\n\n"
+        })
+      }
+      if (parsed.overall_message) systemMessageText += parsed.overall_message + "\n\n"
+      if (parsed.response)        systemMessageText += parsed.response + "\n\n"
+      if (parsed.what_improved)   systemMessageText += parsed.what_improved + "\n\n"
+      if (parsed.invitation)      systemMessageText += parsed.invitation + "\n\n"
+      if (parsed.student_choice)  systemMessageText += parsed.student_choice + "\n\n"
     }
-    if (parsed.direct_feedback && parsed.direct_feedback.length > 0) {
-      parsed.direct_feedback.forEach(fb => {
-        if (fb.message) systemMessageText += fb.message + "\n\n"
-      })
-    }
-    if (parsed.socratic_questions && parsed.socratic_questions.length > 0) {
-      parsed.socratic_questions.forEach(q => {
-        if (q.question) systemMessageText += q.question + "\n\n"
-      })
-    }
-    if (parsed.overall_message) systemMessageText += parsed.overall_message + "\n\n"
-    if (parsed.response)        systemMessageText += parsed.response + "\n\n"
-    if (parsed.what_improved)   systemMessageText += parsed.what_improved + "\n\n"
-    if (parsed.invitation)      systemMessageText += parsed.invitation + "\n\n"
-    if (parsed.student_choice)  systemMessageText += parsed.student_choice + "\n\n"
   }
 
-  // Add call-to-action after every non-complete response
-  if (!parsed.stage_complete) {
+  if (!parsed.stage_complete && systemMessageText) {
     systemMessageText += "\n\n→ Revise your paragraph above and click Get Feedback, or reply here in the chat."
   }
 
