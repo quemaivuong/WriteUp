@@ -236,7 +236,7 @@ async function updateLongTermPatterns(studentId, sessionLog, grade) {
 
 function buildInitialFeedbackPrompt(
   paragraph, grade, mode, taskType, unitTopic,
-  apprehensionFlags, gradeBandData, conversationHistory
+  apprehensionFlags, gradeBandData, conversationHistory, feedbackFocus = 'all'
 ) {
   const tone = buildApprehensionInstructions(apprehensionFlags);
   const bandKey = getGradeBandKey(grade);
@@ -289,6 +289,13 @@ FORMAT AND TOPIC CHECK — evaluate before grammar:
    Minor drift is acceptable — only flag clear topic mismatch.
 If format or topic issues exist, they are MORE important than
 grammar errors and should be addressed first.
+
+FEEDBACK FOCUS — the student has chosen to focus on: ${feedbackFocus}
+
+If focus is "grammar": report ONLY grammar errors. No vocabulary or logic questions.
+If focus is "vocabulary": report ONLY vocabulary repetition. No grammar or logic.
+If focus is "ideas": report ONLY logic and coherence issues. No grammar or vocabulary.
+If focus is "all": use normal priority order (grammar first, then vocabulary, then logic).
 
 STRICT LIMIT: Report a maximum of 2 errors total per response.
 Priority order:
@@ -811,7 +818,8 @@ async function processConversationTurn({
   apprehensionFlags,
   gradeBandData,
   pendingErrors,
-  disputedError
+  disputedError,
+  feedbackFocus = 'all'
 }) {
   let session;
   if (sessionId) {
@@ -844,7 +852,7 @@ async function processConversationTurn({
     case "initial_feedback":
       promptData = buildInitialFeedbackPrompt(
         currentParagraph, grade, mode, taskType, unitTopic,
-        apprehensionFlags, gradeBandData, history
+        apprehensionFlags, gradeBandData, history, feedbackFocus
       );
       break;
     case "student_answer":

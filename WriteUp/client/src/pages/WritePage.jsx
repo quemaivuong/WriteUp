@@ -7,6 +7,7 @@ import FeedbackCard from '../components/FeedbackCard'
 import StructureCard from '../components/StructureCard'
 import SocraticCard from '../components/SocraticCard'
 import StudentReplyInput from '../components/StudentReplyInput'
+import FeedbackFocusSelector from '../components/FeedbackFocusSelector'
 import useConversation from '../hooks/useConversation'
 
 const WORD_TARGETS = {
@@ -25,6 +26,7 @@ export default function WritePage({
   const [draftShared, setDraftShared] = useState(false)
   const [lastSubmittedParagraph, setLastSubmittedParagraph] = useState('')
   const [awaitingRewrite, setAwaitingRewrite] = useState(false)
+  const [feedbackFocus, setFeedbackFocus] = useState(null)
   const dialogueEndRef = useRef(null)
 
   const {
@@ -49,10 +51,11 @@ export default function WritePage({
     reset()
     handleNewSession()
     setDraftShared(false)
+    setFeedbackFocus(null)
   }
 
   function handleSubmit() {
-    if (!selectedTask || !paragraph.trim()) return
+    if (!selectedTask || !paragraph.trim() || !feedbackFocus) return
 
     if (awaitingRewrite && paragraph.trim() === lastSubmittedParagraph.trim()) {
       handleStudentMessage('I submitted without changing my paragraph.')
@@ -77,7 +80,8 @@ export default function WritePage({
       paragraph,
       taskType: selectedTask.task,
       mode: selectedTask.mode,
-      unitTopic: selectedTask.topic
+      unitTopic: selectedTask.topic,
+      feedbackFocus
     })
   }
 
@@ -163,6 +167,7 @@ export default function WritePage({
     reset()
     handleNewSession()
     setDraftShared(false)
+    setFeedbackFocus(null)
   }
 
   const hasConversation = conversationHistory.length > 0
@@ -256,11 +261,43 @@ export default function WritePage({
               </div>
             )}
 
+            {paragraph.trim().length > 20 && !feedbackFocus && !isLoading && (
+              <FeedbackFocusSelector
+                onSelect={setFeedbackFocus}
+                disabled={isLoading}
+              />
+            )}
+
+            {feedbackFocus && (
+              <div style={{
+                display: 'flex', alignItems: 'center',
+                gap: '10px', flexWrap: 'wrap'
+              }}>
+                <div style={{
+                  fontSize: '13px', color: 'var(--ink3)',
+                  padding: '6px 12px',
+                  background: 'var(--teal-light)',
+                  borderRadius: '99px',
+                  border: '1px solid var(--teal-mid)'
+                }}>
+                  Focus: {feedbackFocus === 'grammar' ? 'Grammar' :
+                           feedbackFocus === 'vocabulary' ? 'Vocabulary' :
+                           feedbackFocus === 'ideas' ? 'Ideas and flow' : 'Everything'}
+                </div>
+                <button
+                  onClick={() => setFeedbackFocus(null)}
+                  className="btn btn-ghost btn-sm"
+                >
+                  Change
+                </button>
+              </div>
+            )}
+
             <ActionButtons
               onSubmitParagraph={handleSubmit}
               onShareDraft={handleShare}
               onNewTask={handleNewTask}
-              canSubmit={paragraph.trim().length > 20 && !isLoading}
+              canSubmit={paragraph.trim().length > 20 && !!feedbackFocus && !isLoading}
               canShare={canShare}
               isLoading={isLoading}
             />

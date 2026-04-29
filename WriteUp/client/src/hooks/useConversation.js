@@ -22,7 +22,8 @@ export default function useConversation({
     paragraph,
     taskType,
     mode,
-    unitTopic
+    unitTopic,
+    feedbackFocus
   }) => {
     if (!paragraph.trim()) return
     setIsLoading(true)
@@ -45,7 +46,8 @@ export default function useConversation({
           unitTopic,
           apprehensionFlags,
           sessionId: activeSessionId || null,
-          pendingErrors: isRevision ? pendingErrors : []
+          pendingErrors: isRevision ? pendingErrors : [],
+          feedbackFocus: feedbackFocus || 'all'
         }
       )
 

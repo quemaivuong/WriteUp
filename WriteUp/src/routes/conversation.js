@@ -70,7 +70,8 @@ router.post("/", async (req, res) => {
       unitTopic       = null,
       apprehensionFlags = [],
       pendingErrors   = [],
-      disputedError   = null
+      disputedError   = null,
+      feedbackFocus   = 'all'
     } = req.body;
 
     // Validation
@@ -107,7 +108,8 @@ router.post("/", async (req, res) => {
       apprehensionFlags,
       gradeBandData,
       pendingErrors,
-      disputedError
+      disputedError,
+      feedbackFocus
     });
 
     return res.json({ success: true, data: result });
