@@ -261,6 +261,13 @@ export default function WritePage({
               </div>
             )}
 
+            {console.log('FocusSelector conditions:', {
+              paragraphLength: paragraph.trim().length,
+              feedbackFocus,
+              isLoading,
+              selectedTask: !!selectedTask
+            })}
+
             {paragraph.trim().length > 20 && !feedbackFocus && !isLoading && (
               <FeedbackFocusSelector
                 onSelect={setFeedbackFocus}
