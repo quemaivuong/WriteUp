@@ -950,9 +950,19 @@ async function processConversationTurn({
       (parsed.overall_message && parsed.overall_message.includes('What would you like to work on'))) {
     systemMessageText = parsed.overall_message || parsed.what_is_strong || ''
   } else if (parsed.topic_check && !parsed.topic_check.on_topic) {
+    const hasOtherErrors = (parsed.direct_feedback?.length > 0) ||
+                           (parsed.socratic_questions?.length > 0)
     systemMessageText += "The topic needs attention — see the card below."
+    if (hasOtherErrors) {
+      systemMessageText += "\n\nThere are also grammar and vocabulary points to look at. Fix the topic first and we will move on to those next."
+    }
   } else if (parsed.format_check && !parsed.format_check.correct_format_used) {
+    const hasOtherErrors = (parsed.direct_feedback?.length > 0) ||
+                           (parsed.socratic_questions?.length > 0)
     systemMessageText += "The format needs attention — see the card below."
+    if (hasOtherErrors) {
+      systemMessageText += "\n\nThere are also grammar and vocabulary points to look at. Fix the format first and we will move on to those next."
+    }
   } else {
     // Normal flow
     if (parsed.what_is_strong) {

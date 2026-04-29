@@ -370,7 +370,8 @@ export default function WritePage({
                         </>
                       )}
                       {isFirstSystemTurn && !feedbackFocus && !isLoading &&
-                       (!turn.topicCheck || turn.topicCheck.on_topic) && (
+                       (!turn.topicCheck || turn.topicCheck.on_topic) &&
+                       (!turn.formatCheck || turn.formatCheck.correct_format_used) && (
                         <FeedbackFocusSelector
                           onSelect={handleFeedbackFocusSelect}
                           disabled={isLoading}
