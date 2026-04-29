@@ -4,18 +4,18 @@ const GRADE_PROMPTS = {
   6: [
     "What do you like about this paragraph?",
     "What did you learn from reading this?",
-    "Is there anything that is not clear to you?",
+    "Is there anything you did not understand?",
     "Do you have a question for the writer?"
   ],
   7: [
     "Did the writer answer the main question of the task?",
-    "What detail helped you understand the topic?",
+    "What detail helped you understand the topic better?",
     "What would you like to know more about?",
-    "Do you agree with the writer? Why or why not?"
+    "Do you agree with what the writer said? Why?"
   ],
   8: [
     "Is the writer's opinion clear?",
-    "Did the writer give good reasons for their opinion?",
+    "Did the writer give good reasons?",
     "Do you agree or disagree with the writer?",
     "What is one thing this paragraph did not explain?"
   ]
@@ -54,7 +54,7 @@ ${grade === 7 ? 'Use simple A1 words. Short sentences.' : ''}
 ${grade === 8 ? 'Use A2 vocabulary. Keep it simple and clear.' : ''}
 
 Do not ask about grammar.
-Do not use these words: genuine, curious, unanswered, elaborate, justify, evaluate, authentic.
+Do not use these words: genuine, curious, unanswered, elaborate, justify, evaluate, authentic, nuanced, compelling, insightful, profound.
 Write only the question. No explanation. No introduction.`
           }],
           system: 'You write short, simple questions for ESL students. One question only. Plain text, no punctuation except the question mark at the end.'
