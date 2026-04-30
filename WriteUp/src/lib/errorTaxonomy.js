@@ -242,6 +242,52 @@ const ERROR_TAXONOMY = {
     }
   },
 
+  punctuation_error: {
+    id: "punctuation_error",
+    category: "grammar",
+    label: "Punctuation error",
+    attribution: {
+      "6-7": "Punctuation rules are taught through reading and writing practice in Units 1-12.",
+      "8-9": "Punctuation is reinforced through email, letter, and paragraph writing tasks.",
+      "10-11": "Correct punctuation is expected in all formal writing tasks.",
+      "12": "Accurate punctuation is a baseline expectation at this level."
+    },
+    blameAssignment: {
+      "6-7": "Punctuation is easy to miss when you are focused on your ideas. This is a surface-level fix.",
+      "8-9": "This punctuation pattern needs attention — it affects how a reader understands your sentences.",
+      "10-11": "Punctuation errors at this level signal a need to proofread more carefully.",
+      "12": "This should be caught during revision."
+    },
+    agencyOptions: {
+      "6-7": [
+        "Read your sentence aloud — where do you naturally pause?",
+        "Check if your sentence needs a comma, full stop, or capital letter",
+        "Resubmit with the punctuation fixed"
+      ],
+      "8-9": [
+        "Read your sentence aloud — where do you naturally pause?",
+        "Check if your sentence needs a comma, full stop, or capital letter",
+        "Resubmit with the punctuation fixed"
+      ],
+      "10-11": [
+        "Read your sentence aloud — where do you naturally pause?",
+        "Check if your sentence needs a comma, full stop, or capital letter",
+        "Resubmit with the punctuation fixed"
+      ],
+      "12": [
+        "Read your sentence aloud — where do you naturally pause?",
+        "Check if your sentence needs a comma, full stop, or capital letter",
+        "Resubmit with the punctuation fixed"
+      ]
+    },
+    textbookReference: {
+      "6-7": "Unit 1 — Sentence writing: capital letters and full stops",
+      "8-9": "Unit 1 — Writing conventions: punctuation in emails and paragraphs",
+      "10-11": "General writing conventions",
+      "12": "General writing conventions"
+    }
+  },
+
   evidence_no_analysis: {
     id: "evidence_no_analysis",
     category: "logic",

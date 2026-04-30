@@ -44,6 +44,7 @@ const TRACK_MAP = {
   article_omission:       "direct",
   tense_mixing:           "direct",
   direct_translation:     "direct",
+  punctuation_error:      "direct",
   vocabulary_repetition:  "soft_socratic",
   weak_connector:         "full_socratic",
   disconnected_sentences: "full_socratic",
