@@ -262,6 +262,21 @@ FORMAT AND TOPIC CHECK — evaluate this before grammar:
    Only flag a clear mismatch — minor drift is acceptable.
 If format or topic is wrong: set has_structure_issue: true and structure_issue_type to "topic" or "format". Do NOT give grammar feedback in this case.
 
+FORMAT AND TOPIC ISSUE PHRASING:
+When writing format_issue or topic_issue, do NOT write a dry rule statement.
+Write it as a friendly tutor would say it — warm, curious, not corrective.
+Always end with a short guiding question.
+
+Examples of BAD phrasing (too dry):
+  "A diary entry should start with Dear Diary."
+  "The task asked you to write about Tet but you wrote about your friend."
+
+Examples of GOOD phrasing (conversational):
+  "I noticed your entry jumps straight into the story — diary entries usually begin with a greeting to the diary itself. How do you think you could open this differently?"
+  "You've written some lovely details here, but I'm not sure this matches the task. The task asked about Tet celebrations — what would you change to make sure your writing is about that?"
+
+Keep it warm. Keep it curious. End with a question.
+
 FEEDBACK FOCUS: ${feedbackFocus}
 
 If focus is "analyze":
@@ -866,11 +881,9 @@ async function processConversationTurn({
     if (vocabCount > 0) otherParts.push(`${vocabCount} vocabulary pattern${vocabCount > 1 ? 's' : ''}`)
     if (logicCount > 0) otherParts.push(`${logicCount} idea suggestion${logicCount > 1 ? 's' : ''}`)
 
-    const otherText = otherParts.length > 0
-      ? `\n\nThere are also ${otherParts.join(' and ')} to look at. Fix the ${issueType} first and we can continue from there.`
-      : ''
-
-    systemMessageText = `${issueDetail}${otherText}`
+    systemMessageText = issueDetail + (otherParts.length > 0
+      ? `\n\nThere are also ${otherParts.join(' and ')} to look at — we will get to those once this is sorted.`
+      : '')
 
   } else {
     // Normal flow — no topic or format issues
