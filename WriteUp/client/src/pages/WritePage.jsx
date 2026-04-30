@@ -337,7 +337,7 @@ export default function WritePage({
                     )}
                     {isLastSystemTurn && !isLoading && (
                       <>
-                        {turn.hasStructureIssue && (
+                        {turn.hasStructureIssue && i === conversationHistory.length - 1 && (
                           <div style={{ display: 'flex', gap: '8px', paddingTop: '4px' }}>
                             <button
                               onClick={() => setReplyPreFill(
@@ -396,13 +396,18 @@ export default function WritePage({
             {hasConversation && !isLoading && (
               <div style={{ padding: '12px 16px', borderTop: '1px solid var(--line)' }}>
                 <StudentReplyInput
-                  onSend={handleReply}
-                  onKeep={handleKeep}
-                  onPushback={handlePushback}
+                  onSend={(msg) => {
+                    setReplyPreFill('')
+                    handleReply(msg)
+                  }}
+                  onPushback={(msg) => {
+                    setReplyPreFill('')
+                    handlePushback(msg)
+                  }}
                   disabled={isLoading}
-                  placeholder="Respond to the feedback… (Ctrl+Enter to send)"
-                  showKeepOption={pendingErrors.length > 0}
-                  showPushbackOption={pendingErrors.length > 0}
+                  placeholder="Reply here… (Ctrl+Enter to send)"
+                  showKeepOption={false}
+                  showPushbackOption={false}
                   initialValue={replyPreFill}
                 />
               </div>

@@ -904,10 +904,6 @@ async function processConversationTurn({
     }
   }
 
-  if (!parsed.stage_complete && systemMessageText) {
-    systemMessageText += "\n\n→ Revise your paragraph above and click Get Feedback, or reply here in the chat."
-  }
-
   systemMessageText = systemMessageText.trim()
   console.log('TRIMMED MESSAGE:', systemMessageText);
 
