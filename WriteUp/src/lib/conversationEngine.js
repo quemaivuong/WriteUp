@@ -329,6 +329,13 @@ Write ONLY the question. Stop before the answer.
 If you find yourself about to give the answer, delete it and ask a different question.
 The student must discover the answer themselves.
 
+CAPITALISATION ERRORS:
+Errors where the student uses lowercase 'i' instead of 'I', fails to capitalise
+the start of a sentence, or fails to capitalise proper nouns — these are ALL
+grammar errors. Use error_type: "punctuation_error" and put them in direct_feedback.
+Do NOT put capitalisation errors in socratic_questions.
+Do NOT classify them as logic or coherence issues.
+
 CONVERSATIONAL_RESPONSE RULES:
 - Start with ONE short sentence acknowledging something strong.
 - Then address ONE error or ask ONE question.

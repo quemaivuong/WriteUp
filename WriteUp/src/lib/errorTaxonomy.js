@@ -245,7 +245,7 @@ const ERROR_TAXONOMY = {
   punctuation_error: {
     id: "punctuation_error",
     category: "grammar",
-    label: "Punctuation error",
+    label: "Punctuation and capitalisation error",
     attribution: {
       "6-7": "Punctuation rules are taught through reading and writing practice in Units 1-12.",
       "8-9": "Punctuation is reinforced through email, letter, and paragraph writing tasks.",
@@ -281,7 +281,7 @@ const ERROR_TAXONOMY = {
       ]
     },
     textbookReference: {
-      "6-7": "Unit 1 — Sentence writing: capital letters and full stops",
+      "6-7": "Unit 1 — Sentence writing: capital letters, full stops, and punctuation",
       "8-9": "Unit 1 — Writing conventions: punctuation in emails and paragraphs",
       "10-11": "General writing conventions",
       "12": "General writing conventions"
