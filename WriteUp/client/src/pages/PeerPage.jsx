@@ -30,14 +30,6 @@ export default function PeerPage({ studentId, grade, draftSubmitted }) {
 
   const [guidingQuestionText, setGuidingQuestionText] = useState('')
 
-  function handleUseQuestion(question) {
-    setActiveTab('qa')
-    setQuestionInputs(prev => ({
-      ...prev,
-      [selectedDraft.id]: question
-    }))
-  }
-
   return (
     <main style={{
       maxWidth: '1100px',
@@ -203,7 +195,6 @@ export default function PeerPage({ studentId, grade, draftSubmitted }) {
                 <GuidingQuestion
                   draft={selectedDraft}
                   grade={grade}
-                  onUseQuestion={handleUseQuestion}
                 />
 
                 <div style={{

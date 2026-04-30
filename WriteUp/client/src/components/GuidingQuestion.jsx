@@ -3,34 +3,31 @@ import { useState, useEffect } from 'react'
 const GRADE_PROMPTS = {
   6: [
     "What do you like about this paragraph?",
-    "What did you learn from reading this?",
     "Is there anything you did not understand?",
-    "Do you have a question for the writer?"
+    "What would you like to know more about?"
   ],
   7: [
     "Did the writer answer the main question of the task?",
     "What detail helped you understand the topic better?",
-    "What would you like to know more about?",
-    "Do you agree with what the writer said? Why?"
+    "Do you agree with what the writer said?"
   ],
   8: [
     "Is the writer's opinion clear?",
     "Did the writer give good reasons?",
-    "Do you agree or disagree with the writer?",
     "What is one thing this paragraph did not explain?"
   ]
 }
 
-export default function GuidingQuestion({ draft, grade, onUseQuestion }) {
-  const [question, setQuestion] = useState(null)
+export default function GuidingQuestion({ draft, grade }) {
+  const [questions, setQuestions] = useState([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (!draft) return
-    generateQuestion()
+    generateQuestions()
   }, [draft?.id])
 
-  async function generateQuestion() {
+  async function generateQuestions() {
     setLoading(true)
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -38,92 +35,111 @@ export default function GuidingQuestion({ draft, grade, onUseQuestion }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 200,
+          max_tokens: 300,
           messages: [{
             role: 'user',
-            content: `You are helping a Grade ${grade} ESL student read and respond to a classmate's paragraph.
+            content: `You are helping a Grade ${grade} ESL student think about a classmate's paragraph.
 
 The paragraph is: "${draft.paragraph}"
 The task was: "${draft.task}"
-The grade is: ${grade}
 
-Write ONE short question that helps the reader think about the IDEAS in this paragraph.
-The question must use only simple words that a Grade ${grade} student knows.
-${grade <= 6 ? 'Use A1 vocabulary only. Very simple words.' : ''}
-${grade === 7 ? 'Use simple A1 words. Short sentences.' : ''}
-${grade === 8 ? 'Use A2 vocabulary. Keep it simple and clear.' : ''}
+Write 2 or 3 short thinking prompts that help the reader think about this specific paragraph.
+The prompts should be about the IDEAS, not grammar.
+Each prompt should be a simple question that a Grade ${grade} student can understand.
+${grade <= 6 ? 'Use only very simple A1 words. Short sentences.' : ''}
+${grade === 7 ? 'Use simple words. Keep sentences short.' : ''}
+${grade === 8 ? 'Use clear simple language.' : ''}
 
-Do not ask about grammar.
-Do not use these words: genuine, curious, unanswered, elaborate, justify, evaluate, authentic, nuanced, compelling, insightful, profound.
-Write only the question. No explanation. No introduction.`
-          }],
-          system: 'You write short, simple questions for ESL students. One question only. Plain text, no punctuation except the question mark at the end.'
+Do NOT use these words: genuine, curious, unanswered, elaborate, justify, evaluate, authentic, nuanced, compelling.
+Do NOT give questions that are easy to answer with just yes or no.
+Make the questions specific to THIS paragraph, not generic.
+
+Return ONLY a JSON array of 2-3 question strings. No other text.
+Example: ["What made the writer feel this way?", "How is this place different from where you live?"]`
+          }]
         })
       })
       const data = await response.json()
-      const generated = data.content?.[0]?.text?.trim()
-      if (generated) {
-        setQuestion(generated)
-      } else {
-        const prompts = GRADE_PROMPTS[grade] || GRADE_PROMPTS[8]
-        setQuestion(prompts[Math.floor(Math.random() * prompts.length)])
+      const raw = data.content?.[0]?.text?.trim()
+        .replace(/^```json\s*/i, '')
+        .replace(/```\s*$/i, '')
+        .trim()
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setQuestions(parsed.slice(0, 3))
+          setLoading(false)
+          return
+        }
       }
     } catch {
-      const prompts = GRADE_PROMPTS[grade] || GRADE_PROMPTS[8]
-      setQuestion(prompts[Math.floor(Math.random() * prompts.length)])
-    } finally {
-      setLoading(false)
+      // fall through to defaults
     }
+    const prompts = GRADE_PROMPTS[grade] || GRADE_PROMPTS[8]
+    setQuestions(prompts)
+    setLoading(false)
   }
 
-  if (!question && !loading) return null
+  if (!questions.length && !loading) return null
 
   return (
     <div style={{
-      background: 'var(--color-background-primary)',
-      border: '0.5px solid var(--color-border-tertiary)',
-      borderRadius: 'var(--border-radius-lg)',
-      padding: '12px 14px',
-      marginTop: '12px'
+      marginTop: '16px',
+      padding: '14px 16px',
+      background: 'var(--paper2)',
+      border: '1px solid var(--line)',
+      borderRadius: 'var(--radius)',
     }}>
       <div style={{
-        fontSize: '11px', fontWeight: '500',
-        textTransform: 'uppercase', letterSpacing: '0.06em',
-        color: 'var(--color-text-secondary)',
-        marginBottom: '8px'
+        fontSize: '11px',
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        letterSpacing: '0.6px',
+        color: 'var(--ink3)',
+        marginBottom: '10px'
       }}>
-        A question to help you start
+        Things to think about
       </div>
 
       {loading ? (
-        <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
-          Finding a good question for you…
+        <div style={{ fontSize: '13px', color: 'var(--ink3)' }}>
+          Finding some questions for you…
         </div>
       ) : (
-        <>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {questions.map((q, i) => (
+            <div key={i} style={{
+              display: 'flex', gap: '10px', alignItems: 'flex-start'
+            }}>
+              <div style={{
+                width: '18px', height: '18px',
+                borderRadius: '50%',
+                background: 'var(--teal-light)',
+                border: '1px solid var(--teal-mid)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '11px', fontWeight: '600',
+                color: 'var(--teal)', flexShrink: 0, marginTop: '1px'
+              }}>
+                {i + 1}
+              </div>
+              <div style={{
+                fontSize: '13px',
+                color: 'var(--ink2)',
+                lineHeight: '1.6'
+              }}>
+                {q}
+              </div>
+            </div>
+          ))}
           <div style={{
-            fontSize: '14px',
-            color: 'var(--color-text-primary)',
-            lineHeight: '1.6',
-            fontWeight: '500',
-            marginBottom: '10px'
+            marginTop: '6px',
+            fontSize: '12px',
+            color: 'var(--ink3)',
+            fontStyle: 'italic'
           }}>
-            {question}
+            Use these to help you write a comment or question below.
           </div>
-          <button
-            onClick={() => onUseQuestion(question)}
-            style={{
-              fontSize: '12px', padding: '5px 12px',
-              borderRadius: 'var(--border-radius-md)',
-              border: '0.5px solid var(--color-border-secondary)',
-              background: 'var(--color-background-primary)',
-              color: 'var(--color-text-primary)',
-              cursor: 'pointer'
-            }}
-          >
-            Use this question →
-          </button>
-        </>
+        </div>
       )}
     </div>
   )
