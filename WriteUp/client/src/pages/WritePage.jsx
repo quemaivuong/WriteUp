@@ -361,7 +361,7 @@ export default function WritePage({
                             </button>
                           </div>
                         )}
-                        {turn.showFocusChoice && !feedbackFocus && (
+                        {turn.showFocusChoice && !feedbackFocus && !turn.hasStructureIssue && (
                           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
                             {(turn.focusOptions || []).map(opt => (
                               <button
