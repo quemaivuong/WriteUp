@@ -296,12 +296,14 @@ export default function PeerPage({ studentId, grade, draftSubmitted }) {
                     }))}
                     placeholder="Write your comment here…"
                     rows={3}
+                    onFocus={e => e.target.style.borderColor = 'var(--teal-mid)'}
+                    onBlur={e => e.target.style.borderColor = 'var(--line)'}
                     style={{
                       flex: 1, fontSize: '13px',
                       padding: '8px 12px',
                       borderRadius: 'var(--border-radius-md)',
-                      border: '0.5px solid var(--color-border-secondary)',
-                      background: 'var(--color-background-secondary)',
+                      border: '1.5px solid var(--line)',
+                      background: 'white',
                       color: 'var(--color-text-primary)',
                       resize: 'none', fontFamily: 'var(--font-sans)'
                     }}
@@ -411,12 +413,14 @@ export default function PeerPage({ studentId, grade, draftSubmitted }) {
                           }))}
                           placeholder="Write an answer…"
                           rows={1}
+                          onFocus={e => e.target.style.borderColor = 'var(--teal-mid)'}
+                          onBlur={e => e.target.style.borderColor = 'var(--line)'}
                           style={{
                             flex: 1, fontSize: '12px',
                             padding: '6px 10px',
                             borderRadius: 'var(--border-radius-md)',
-                            border: '0.5px solid var(--color-border-secondary)',
-                            background: 'var(--color-background-primary)',
+                            border: '1.5px solid var(--line)',
+                            background: 'white',
                             color: 'var(--color-text-primary)',
                             resize: 'none', fontFamily: 'var(--font-sans)'
                           }}
@@ -456,12 +460,14 @@ export default function PeerPage({ studentId, grade, draftSubmitted }) {
                     }))}
                     placeholder="Ask the writer a question about their paragraph…"
                     rows={2}
+                    onFocus={e => e.target.style.borderColor = 'var(--teal-mid)'}
+                    onBlur={e => e.target.style.borderColor = 'var(--line)'}
                     style={{
                       flex: 1, fontSize: '13px',
                       padding: '8px 12px',
                       borderRadius: 'var(--border-radius-md)',
-                      border: '0.5px solid var(--color-border-secondary)',
-                      background: 'var(--color-background-secondary)',
+                      border: '1.5px solid var(--line)',
+                      background: 'white',
                       color: 'var(--color-text-primary)',
                       resize: 'none', fontFamily: 'var(--font-sans)'
                     }}
