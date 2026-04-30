@@ -586,6 +586,20 @@ Return the standard revision JSON format:
   "invitation": "<next step — null if complete>"
 }
 
+AFTER EVALUATING THE REVISION:
+If the revision resolved the format or topic issue, always end your response
+with a summary of remaining issues and ask the student what they want to work on next.
+
+Format the summary like this:
+"Good — the [format/topic] looks right now. I can also see
+[N grammar issue(s)][, N vocabulary pattern(s)][, and N idea suggestion(s)].
+What would you like to work on first?"
+
+Then set the JSON fields so the frontend shows the focus selector:
+- Set stage_complete: false
+- Populate direct_feedback and socratic_questions with detected errors
+- Set overall_message to the summary text above
+
 The student has submitted a revision. Compare it against the
 original issues that were being discussed: ${JSON.stringify(originalErrors)}
 
@@ -905,6 +919,11 @@ async function processConversationTurn({
   const vocabCount = parsed.socratic_questions?.filter(q => q.track === 'soft_socratic').length || 0
   const logicCount = parsed.socratic_questions?.filter(q => q.track === 'full_socratic').length || 0
 
+  const isAnalyzeTurn = !feedbackFocus ||
+    feedbackFocus === 'analyze' ||
+    (turnType === 'student_revision' && !(hasTopicIssue || hasFormatIssue) &&
+     (grammarCount > 0 || vocabCount > 0 || logicCount > 0))
+
   if (hasTopicIssue || hasFormatIssue) {
     const issueType = hasTopicIssue ? 'topic' : 'format'
     const issueDetail = hasTopicIssue
@@ -929,7 +948,7 @@ async function processConversationTurn({
 
     if (parsed.conversational_response) {
       systemMessageText = parsed.conversational_response
-    } else if (parts.length > 0 && (!feedbackFocus || feedbackFocus === 'analyze')) {
+    } else if (parts.length > 0 && isAnalyzeTurn) {
       systemMessageText = `I found ${parts.join(', ')}. What would you like to work on first?`
     } else {
       // Detailed feedback turn
@@ -1079,7 +1098,7 @@ async function processConversationTurn({
     formatCheck:           parsed.format_check || null,
     topicCheck:            parsed.topic_check || null,
     options:               parsed.options || [],
-    showFocusChoice:       parsed.show_focus_choice || false,
+    showFocusChoice:       parsed.show_focus_choice || isAnalyzeTurn || false,
     focusOptions,
     hasStructureIssue,
     structureIssueType,
