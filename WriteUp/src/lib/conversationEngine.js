@@ -14,6 +14,7 @@ const { supabase } = require("./supabase");
 const { getErrorEntry, getGradeBandKey } = require("./errorTaxonomy");
 const { processSessionPatterns } = require("./patternTracker");
 const { buildApprehensionInstructions } = require("./feedbackPrompt");
+const { RUBRIC } = require("./rubric");
 
 // ── MOCK MODE ─────────────────────────────────────────────────────
 // Set MOCK_SUPABASE=true in .env to bypass Supabase calls.
@@ -54,6 +55,14 @@ const TRACK_MAP = {
 
 function getTrack(errorType) {
   return TRACK_MAP[errorType] || "direct";
+}
+
+function getGradeBand(grade) {
+  const g = parseInt(grade)
+  if (g <= 7) return '6-7'
+  if (g <= 9) return '8-9'
+  if (g <= 11) return '10-11'
+  return '12'
 }
 
 // ── TURN TYPE DETECTION ──────────────────────────────────────────
@@ -382,7 +391,15 @@ Respond ONLY with valid JSON:
   "show_focus_choice": false,
   "overall_message": "<1-2 warm sentences>",
   "invitation": "<open-ended closing question>"
-}`,
+}
+
+${(() => {
+  const gradeBandKey = getGradeBand(grade)
+  return `RUBRIC FOR THIS GRADE BAND (${gradeBandKey}):
+${JSON.stringify(RUBRIC[gradeBandKey], null, 2)}
+
+Use this rubric to calibrate your feedback. Do not penalise students for skills listed in notExpected. Focus feedback on the criteria listed in feedbackFocus.`
+})()}`,
     messages: [
       ...formatHistoryForClaude(conversationHistory),
       { role: "user", content: `My paragraph:\n\n"${paragraph}"` }
@@ -725,7 +742,15 @@ Respond ONLY with valid JSON:
   "response": "<your full response>",
   "stage_complete": true | false,
   "invitation": "<closing question if not complete>"
-}`,
+}
+
+${(() => {
+  const gradeBandKey = getGradeBand(grade)
+  return `RUBRIC FOR THIS GRADE BAND (${gradeBandKey}):
+${JSON.stringify(RUBRIC[gradeBandKey], null, 2)}
+
+Use this rubric to calibrate your feedback. Do not penalise students for skills listed in notExpected. Focus feedback on the criteria listed in feedbackFocus.`
+})()}`,
     messages: [
       ...formatHistoryForClaude(conversationHistory),
       {
