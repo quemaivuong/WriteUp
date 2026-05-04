@@ -486,6 +486,19 @@ Respond ONLY with valid JSON:
   "next_action": "list_errors" | "ask_question" | "confirm_and_bridge" | "redirect" | "complete",
   "invitation": "<one short closing question — Ready for the next one? OR What do you think? OR null>",
   "options": []
+}
+
+CRITICAL — JSON ONLY:
+Your entire response must be valid JSON parseable by JSON.parse().
+Start with { and end with }.
+Never write plain text. Never write markdown.
+If you find yourself writing plain text, reformat as:
+{
+  "assessment": "correct",
+  "response": "<your response here>",
+  "next_action": "guide_fix",
+  "options": [],
+  "invitation": "<closing question>"
 }`,
     messages: [
       ...formatHistoryForClaude(conversationHistory),
@@ -774,7 +787,24 @@ ${(() => {
 ${JSON.stringify(RUBRIC[gradeBandKey], null, 2)}
 
 Use this rubric to calibrate your feedback. Do not penalise students for skills listed in notExpected. Focus feedback on the criteria listed in feedbackFocus.`
-})()}`,
+})()}
+
+CRITICAL — JSON ONLY:
+Your entire response must be valid JSON parseable by JSON.parse().
+Start with { and end with }.
+Never write plain text. Never write markdown.
+Never write a response outside of the JSON structure.
+If you are tempted to write a plain text response, stop and format it as JSON with these fields:
+{
+  "outcome": "improved",
+  "what_improved": "",
+  "remaining_issue": "<your observation here>",
+  "response": "<your full response as a plain string>",
+  "direct_feedback": [],
+  "socratic_questions": [],
+  "stage_complete": false,
+  "invitation": "<your closing question>"
+}`,
     messages: [
       ...formatHistoryForClaude(conversationHistory),
       {
