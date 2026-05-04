@@ -15,6 +15,7 @@ const { getErrorEntry, getGradeBandKey } = require("./errorTaxonomy");
 const { processSessionPatterns } = require("./patternTracker");
 const { buildApprehensionInstructions } = require("./feedbackPrompt");
 const { RUBRIC } = require("./rubric");
+const { getCurriculumContext } = require("./curriculumData");
 
 // ── MOCK MODE ─────────────────────────────────────────────────────
 // Set MOCK_SUPABASE=true in .env to bypass Supabase calls.
@@ -251,6 +252,28 @@ function buildInitialFeedbackPrompt(
   const tone = buildApprehensionInstructions(apprehensionFlags);
   const bandKey = getGradeBandKey(grade);
 
+  const curriculumContext = getCurriculumContext(parseInt(grade), unitTopic, mode)
+  const curriculumBlock = curriculumContext ? `
+CURRICULUM CONTEXT FOR THIS TASK:
+Unit: ${curriculumContext.title}
+Topic: ${curriculumContext.topic}
+Task type: ${curriculumContext.taskType}
+Target word count: ${curriculumContext.targetWordCount.min}–${curriculumContext.targetWordCount.max} words
+Key vocabulary students should know: ${curriculumContext.keyVocabulary.join(', ')}
+Grammar already taught: ${curriculumContext.targetGrammar.join(', ')}
+Expected structure:
+  - Opening: ${curriculumContext.writingStructure.topicSentence}
+  - Body: ${curriculumContext.writingStructure.body}
+  - Conclusion: ${curriculumContext.writingStructure.conclusion}
+Common errors at this level: ${curriculumContext.sampleErrors.join('; ')}
+
+Use this to calibrate your feedback:
+- Only flag grammar errors from the "Grammar already taught" list above
+- Reference the key vocabulary when suggesting improvements
+- Check that the writing follows the expected structure
+- Common errors listed above are high priority to flag
+` : ''
+
   return {
     system: `You are WriteUp, a warm ESL writing coach for a Vietnamese Grade ${grade} student (CEFR ${gradeBandData.cefr}).
 
@@ -393,6 +416,7 @@ Respond ONLY with valid JSON:
   "invitation": "<open-ended closing question>"
 }
 
+${curriculumBlock}
 ${(() => {
   const gradeBandKey = getGradeBand(grade)
   return `RUBRIC FOR THIS GRADE BAND (${gradeBandKey}):

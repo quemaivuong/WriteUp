@@ -100,9 +100,131 @@ const TASKS = {
   }
 }
 
-// Fill grades 9-12 with Grade 8 tasks as placeholders
-for (let g = 9; g <= 12; g++) {
-  TASKS[g] = TASKS[8]
+TASKS[9] = {
+  modes: {
+    descriptive: {
+      label: 'Descriptive paragraph',
+      units: [
+        { unit: 1, topic: 'Local community', task: 'Write a paragraph about a community helper' },
+        { unit: 4, topic: 'Remembering the past', task: 'Write a paragraph about old school days' },
+        { unit: 5, topic: 'Our experiences', task: 'Write a paragraph about a memorable school experience' },
+        { unit: 6, topic: 'Vietnamese lifestyle', task: 'Write an email about changes in your family life' },
+        { unit: 7, topic: 'Natural wonders', task: 'Write a paragraph about a natural wonder' },
+        { unit: 8, topic: 'Tourism', task: 'Write a paragraph introducing a tour' },
+        { unit: 10, topic: 'Planet Earth', task: 'Write a summary about an environmental topic' },
+        { unit: 12, topic: 'Career choices', task: 'Write an email about your future job' }
+      ]
+    },
+    advantagesDisadvantages: {
+      label: 'Opinion paragraph',
+      units: [
+        { unit: 2, topic: 'City life', task: 'Write a paragraph about what you like or dislike about city life' },
+        { unit: 3, topic: 'Healthy living', task: 'Write a paragraph about how to manage time effectively' },
+        { unit: 9, topic: 'World Englishes', task: 'Write a paragraph about ways to improve your English' },
+        { unit: 11, topic: 'Electronic devices', task: 'Write about the current and future uses of a device you like' }
+      ]
+    }
+  }
+}
+
+TASKS[10] = {
+  modes: {
+    descriptive: {
+      label: 'Descriptive paragraph',
+      units: [
+        { unit: 1, topic: 'Family life', task: 'Write about your family routines' },
+        { unit: 3, topic: 'Music', task: 'Write a blog about an experience at a music event' },
+        { unit: 7, topic: 'Viet Nam and international organisations', task: 'Write about Viet Nam in an international organisation' },
+        { unit: 9, topic: 'Protecting the environment', task: 'Write about a wildlife organisation' }
+      ]
+    },
+    advantagesDisadvantages: {
+      label: 'Opinion paragraph',
+      units: [
+        { unit: 2, topic: 'Humans and the environment', task: 'Write about ways to improve the environment' },
+        { unit: 5, topic: 'Inventions', task: 'Write about the benefits of an invention' },
+        { unit: 6, topic: 'Gender equality', task: 'Write about jobs for men and women' },
+        { unit: 8, topic: 'New ways to learn', task: 'Write about the benefits of blended learning' }
+      ]
+    },
+    noticeWriting: {
+      label: 'Formal writing',
+      units: [
+        { unit: 4, topic: 'Community', task: 'Write an application letter for volunteer work' },
+        { unit: 10, topic: 'Ecotourism', task: 'Write a website advertisement for an ecotour' }
+      ]
+    }
+  }
+}
+
+TASKS[11] = {
+  modes: {
+    descriptive: {
+      label: 'Descriptive paragraph',
+      units: [
+        { unit: 1, topic: 'A long and healthy life', task: 'Write a short message about a health topic' }
+      ]
+    },
+    advantagesDisadvantages: {
+      label: 'Opinion paragraph',
+      units: [
+        { unit: 3, topic: 'Cities of the future', task: 'Write about advantages and disadvantages of living in a smart city' },
+        { unit: 8, topic: 'Becoming independent', task: 'Write an article about the pros and cons of self-study' }
+      ]
+    },
+    agreeDisagree: {
+      label: 'Argumentative essay',
+      units: [
+        { unit: 2, topic: 'The generation gap', task: 'Write an opinion essay about limiting screen time', starter: 'I believe that / I disagree that' },
+        { unit: 10, topic: 'The ecosystem', task: 'Write an opinion essay about spending money on restoring ecosystems', starter: 'I believe that / I disagree that' }
+      ]
+    },
+    noticeWriting: {
+      label: 'Formal writing',
+      units: [
+        { unit: 4, topic: 'ASEAN and Viet Nam', task: 'Write a proposal for a welcome event' },
+        { unit: 5, topic: 'Global warming', task: 'Write a leaflet to reduce carbon emissions' },
+        { unit: 6, topic: 'Preserving our heritage', task: 'Write a leaflet about preserving a heritage site' },
+        { unit: 7, topic: 'Education options', task: 'Write a request letter for information about vocational courses' },
+        { unit: 9, topic: 'Social issues', task: 'Write a proposal for a campaign against cyberbullying' }
+      ]
+    }
+  }
+}
+
+TASKS[12] = {
+  modes: {
+    descriptive: {
+      label: 'Descriptive paragraph',
+      units: [
+        { unit: 1, topic: 'Life stories', task: 'Write a biography of someone you admire' },
+        { unit: 4, topic: 'Urbanisation', task: 'Describe a graph about trends in urbanisation' },
+        { unit: 9, topic: 'Career paths', task: 'Write about things to consider when choosing a career' }
+      ]
+    },
+    advantagesDisadvantages: {
+      label: 'Opinion paragraph',
+      units: [
+        { unit: 3, topic: 'Green living', task: 'Write a problem-solving report on green solutions' },
+        { unit: 6, topic: 'Artificial intelligence', task: 'Write about AI applications in education' },
+        { unit: 7, topic: 'Mass media', task: 'Write an article comparing digital and traditional media' },
+        { unit: 8, topic: 'Wildlife conservation', task: 'Write about wildlife conservation efforts' }
+      ]
+    },
+    agreeDisagree: {
+      label: 'Argumentative essay',
+      units: [
+        { unit: 2, topic: 'A multicultural world', task: 'Write an essay about the impact of world festivals on young Vietnamese', starter: 'I believe that / I contend that' },
+        { unit: 10, topic: 'Lifelong learning', task: 'Write about the value of lifelong learning', starter: 'I believe that / It can be argued that' }
+      ]
+    },
+    noticeWriting: {
+      label: 'Formal writing',
+      units: [
+        { unit: 5, topic: 'The world of work', task: 'Write a job application letter' }
+      ]
+    }
+  }
 }
 
 export default function TaskSelector({ grade, onSelect, disabled }) {
