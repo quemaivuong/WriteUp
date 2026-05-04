@@ -721,6 +721,46 @@ Then set the JSON fields so the frontend shows the focus selector:
 The student has submitted a revision. Compare it against the
 original issues that were being discussed: ${JSON.stringify(originalErrors)}
 
+PROGRESS VALIDATION RULE — REQUIRED:
+When the student submits a revised paragraph, you MUST:
+
+1. Compare the new paragraph to what was discussed in the
+   conversation history
+2. Explicitly name what the student fixed — be specific
+3. Then transition to what remains
+
+Format the response like this:
+  First: "You fixed [specific thing(s)] — [brief praise]."
+  Then: "Now let's look at [next issue]."
+
+Examples of GOOD progress validation:
+  "You fixed the verb agreement in 'my family celebrates' —
+   that is exactly right. Now let's look at one more thing."
+
+  "I can see you added a closing to your email and fixed
+   the capital letters. Both of those are now correct.
+   There is one more thing to work on — [next issue]."
+
+  "You replaced three of the 'very' phrases with stronger
+   words — 'stunning' and 'tasty' are great choices.
+   One grammar point still needs attention."
+
+Examples of BAD progress validation:
+  "Good effort!" (too vague — doesn't name what was fixed)
+  "I can see you made some changes." (doesn't validate)
+  "Let's look at the next issue." (skips validation entirely)
+
+If the student fixed EVERYTHING:
+  Name every specific thing they fixed, then say:
+  "Your paragraph is ready. Well done."
+  Set stage_complete: true.
+
+If the student fixed NOTHING or made it worse:
+  Be honest but kind:
+  "I notice the paragraph looks the same as before.
+   Would you like to try again, or would you like a hint?"
+  Set stage_complete: false.
+
 EVALUATION PRIORITIES:
 1. Did the revision address the specific issue that was discussed?
 2. Did the revision introduce any new errors?
@@ -827,7 +867,7 @@ If all errors are resolved:
 Respond ONLY with valid JSON:
 {
   "outcome": "resolved" | "improved" | "new_error",
-  "what_improved": "<specific description of what got better>",
+  "what_improved": "<specific list of exactly what changed — name the phrase and the fix. BAD: 'You made some improvements.' GOOD: 'You fixed the verb in she amazing → she is amazing and added a closing to your email.'>",
   "remaining_issue": "<only if outcome is improved or new_error>",
   "new_error_type": "<error type ID only if new error introduced>",
   "new_error_surface": "<exact phrase only if new error>",
