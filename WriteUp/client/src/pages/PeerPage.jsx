@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import CompletionTracker from '../components/CompletionTracker'
-import GuidingQuestion from '../components/GuidingQuestion'
 import usePeer from '../hooks/usePeer'
 
 function Avatar({ name, color, size = 32 }) {
@@ -292,8 +291,6 @@ export default function PeerPage({ studentId, grade, draftSubmitted }) {
                         Use these to help you write a comment or question below.
                       </div>
                     </div>
-
-                    <GuidingQuestion draft={selectedDraft} grade={grade} />
 
                     <div style={{ display: 'flex', gap: '8px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--line)' }}>
                       <button onClick={() => setDraftSubTab('comments')} style={{ fontSize: '13px', padding: '7px 16px', borderRadius: '8px', border: '1.5px solid var(--line)', background: 'white', color: 'var(--ink)', cursor: 'pointer' }}>
