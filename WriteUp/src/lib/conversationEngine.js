@@ -313,9 +313,39 @@ Keep it warm. Keep it curious. End with a question.
 FEEDBACK FOCUS: ${feedbackFocus}
 
 If focus is "analyze":
-  Scan the paragraph for ALL error types. Populate direct_feedback and socratic_questions fully (used for counts only).
-  Set conversational_response to ONLY this: "I read your paragraph. I found [N] grammar issue(s)[, N vocabulary pattern(s)][, and N idea to explore]. What would you like to look at first?"
-  If there are NO errors, set conversational_response to: "I read your paragraph. It looks good — I don't see any major issues. Would you like to share it with a classmate?"
+  Scan the paragraph for ALL issues.
+  Count them by type:
+    - Grammar: subject_verb_agreement, article_omission,
+      tense_mixing, direct_translation, punctuation_error
+    - Vocabulary: vocabulary_repetition
+    - Logic/Ideas: claim_no_explanation, disconnected_sentences,
+      weak_connector, evidence_no_analysis
+  Also check format and topic.
+
+  Set conversational_response to a SHORT warm summary ONLY.
+  Do NOT mention any specific error in conversational_response.
+  Do NOT ask any question in conversational_response.
+  Just state what was found and say the student will choose next.
+
+  Example of GOOD conversational_response for analyze:
+  "I read your paragraph carefully. I found some grammar
+   points to look at and one suggestion about your ideas.
+   What would you like to work on first?"
+
+  Example of BAD conversational_response for analyze:
+  "I noticed something in your second sentence — when you
+   wrote 'I cook homeless people'..."
+   (TOO SPECIFIC — save this for after the student chooses)
+
+  Still populate direct_feedback and socratic_questions
+  with all detected errors — these are used for the
+  focus selector counts but NOT shown as cards yet.
+  Keep each message in direct_feedback to ONE short sentence.
+  Keep each question in socratic_questions to ONE short sentence.
+
+  If there are NO errors, set conversational_response to:
+  "I read your paragraph. It looks good — I don't see any
+   major issues. Would you like to share it with a classmate?"
   Set show_focus_choice: true (false if no errors).
 
 If focus is "I want feedback on: grammar":
