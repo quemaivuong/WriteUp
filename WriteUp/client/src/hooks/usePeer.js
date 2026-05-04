@@ -217,7 +217,14 @@ const POINTS_CONFIG = {
 }
 
 export default function usePeer({ studentId, grade, draftSubmitted }) {
-  const gradeDrafts = ALL_MOCK_DRAFTS[grade] || ALL_MOCK_DRAFTS[8]
+  const rawDrafts = ALL_MOCK_DRAFTS[grade] || ALL_MOCK_DRAFTS[8]
+  const gradeDrafts = rawDrafts.map(d => ({
+    ...d,
+    student_name: getAnonymousName(d.id),
+    initials: getAnonymousName(d.id).split(' ').map(w => w[0]).join(''),
+    color: getAvatarColor(d.id),
+    grade
+  }))
 
   const [selectedDraftId, setSelectedDraftId] = useState(null)
   const [activeTab, setActiveTab] = useState('drafts')
