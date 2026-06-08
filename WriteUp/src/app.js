@@ -3,11 +3,16 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 
+// Allowed origins: production Vercel frontend + local dev.
+// Override / extend with CLIENT_URL in the environment.
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "https://writeup-delta.vercel.app",
+  "http://localhost:5173"
+].filter(Boolean);
+
 app.use(cors({
-  origin: [
-    "https://writeup-delta.vercel.app",
-    "http://localhost:5173"
-  ],
+  origin: allowedOrigins,
   credentials: true
 }));
 
