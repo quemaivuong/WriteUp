@@ -16,6 +16,11 @@ const { processSessionPatterns } = require("./patternTracker");
 const { buildApprehensionInstructions } = require("./feedbackPrompt");
 const { RUBRIC } = require("./rubric");
 const { getCurriculumContext } = require("./curriculumData");
+const {
+  validateInitialFeedback,
+  validateStudentAnswer,
+  validateRevision
+} = require("./responseValidator");
 
 // ── MOCK MODE ─────────────────────────────────────────────────────
 // Set MOCK_SUPABASE=true in .env to bypass Supabase calls.
@@ -980,6 +985,74 @@ Respond ONLY with valid JSON:
   };
 }
 
+// ── MAJORITY VOTE ON ERROR CLASSIFICATION ────────────────────────
+// Runs the analysis pass twice and keeps only errors both passes
+// agree on. Disagreements are dropped. This approximates
+// determinism without fine-tuning: a shaky classification that only
+// shows up in one pass never reaches the student.
+//
+// `messages` is the full Claude message array (formatted history +
+// the student's paragraph), so it works with this engine's unified
+// prompt-builder output.
+
+function stripJsonFences(text) {
+  return text
+    .trim()
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/```\s*$/i, "")
+    .trim();
+}
+
+async function analyzeWithMajorityVote(client, systemPrompt, messages, maxTokens = 1000) {
+  // Run two analysis passes
+  const [response1, response2] = await Promise.all([
+    client.messages.create({
+      model: 'claude-opus-4-5',
+      max_tokens: maxTokens,
+      system: systemPrompt,
+      messages
+    }),
+    client.messages.create({
+      model: 'claude-opus-4-5',
+      max_tokens: maxTokens,
+      system: systemPrompt,
+      messages
+    })
+  ])
+
+  const text1 = stripJsonFences(response1.content[0].text)
+  const text2 = stripJsonFences(response2.content[0].text)
+
+  let parsed1, parsed2
+  try { parsed1 = JSON.parse(text1) } catch { parsed1 = null }
+  try { parsed2 = JSON.parse(text2) } catch { parsed2 = null }
+
+  if (!parsed1 && !parsed2) throw new Error('Both analysis passes failed to return valid JSON')
+  if (!parsed1) return parsed2
+  if (!parsed2) return parsed1
+
+  // Merge — only keep errors that appear in BOTH passes
+  const errors1 = (parsed1.direct_feedback || []).map(e => e.error_type + '::' + e.surface)
+  const errors2 = (parsed2.direct_feedback || []).map(e => e.error_type + '::' + e.surface)
+  const agreedErrors = errors1.filter(e => errors2.includes(e))
+
+  const questions1 = (parsed1.socratic_questions || []).map(q => q.error_type + '::' + q.surface)
+  const questions2 = (parsed2.socratic_questions || []).map(q => q.error_type + '::' + q.surface)
+  const agreedQuestions = questions1.filter(q => questions2.includes(q))
+
+  // Use pass 1 as base, filter to agreed errors only
+  return {
+    ...parsed1,
+    direct_feedback: (parsed1.direct_feedback || []).filter(e =>
+      agreedErrors.includes(e.error_type + '::' + e.surface)
+    ),
+    socratic_questions: (parsed1.socratic_questions || []).filter(q =>
+      agreedQuestions.includes(q.error_type + '::' + q.surface)
+    )
+  }
+}
+
 async function processConversationTurn({
   claudeClient,
   sessionId,
@@ -1071,27 +1144,61 @@ async function processConversationTurn({
       );
   }
 
-  const claudeResponse = await claudeClient.messages.create({
-    model: "claude-opus-4-5",
-    max_tokens: 1024,
-    system: promptData.system,
-    messages: promptData.messages
-  });
-
-  const raw = claudeResponse.content[0].text
-    .trim()
-    .replace(/^```json\s*/i, "")
-    .replace(/^```\s*/i, "")
-    .replace(/```\s*$/i, "")
-    .trim();
+  // The initial "analyze" pass is where error classification matters
+  // most, so run it twice and keep only errors both passes agree on.
+  // Every other turn type stays a single call.
+  const useMajorityVote = turnType === "initial_feedback" && feedbackFocus === "analyze";
 
   let parsed;
-  try {
-    parsed = JSON.parse(raw);
-    console.log('PARSED RESPONSE:', JSON.stringify(parsed, null, 2));
-  } catch (e) {
-    console.error("Claude response was not valid JSON:", raw);
-    throw new Error("Invalid response format from Claude");
+  if (useMajorityVote) {
+    try {
+      parsed = await analyzeWithMajorityVote(
+        claudeClient, promptData.system, promptData.messages, 1024
+      );
+      console.log('PARSED RESPONSE (majority vote):', JSON.stringify(parsed, null, 2));
+    } catch (e) {
+      console.error("Majority-vote analysis failed:", e.message);
+      throw new Error("Invalid response format from Claude");
+    }
+  } else {
+    const claudeResponse = await claudeClient.messages.create({
+      model: "claude-opus-4-5",
+      max_tokens: 1024,
+      system: promptData.system,
+      messages: promptData.messages
+    });
+
+    const raw = claudeResponse.content[0].text
+      .trim()
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/```\s*$/i, "")
+      .trim();
+
+    try {
+      parsed = JSON.parse(raw);
+      console.log('PARSED RESPONSE:', JSON.stringify(parsed, null, 2));
+    } catch (e) {
+      console.error("Claude response was not valid JSON:", raw);
+      throw new Error("Invalid response format from Claude");
+    }
+  }
+
+  // Schema validation — sanitize Claude output against the expected
+  // shape before any of it reaches the frontend. Invalid error types,
+  // bad tracks, and non-boolean flags are corrected or dropped.
+  if (turnType === "initial_feedback") {
+    const { sanitized, errors: validationErrors } = validateInitialFeedback(parsed);
+    if (validationErrors.length > 0) console.log('Validation issues:', validationErrors);
+    if (sanitized) parsed = sanitized;
+  } else if (turnType === "student_revision") {
+    const { sanitized, errors: validationErrors } = validateRevision(parsed);
+    if (validationErrors.length > 0) console.log('Validation issues:', validationErrors);
+    if (sanitized) parsed = sanitized;
+  } else if (turnType === "student_answer") {
+    const { sanitized, errors: validationErrors } = validateStudentAnswer(parsed);
+    if (validationErrors.length > 0) console.log('Validation issues:', validationErrors);
+    if (sanitized) parsed = sanitized;
   }
 
   let systemMessageText = ""
