@@ -19,7 +19,8 @@ const VALID_ERROR_TYPES = new Set([
 
 const VALID_TRACKS = new Set(['direct', 'soft_socratic', 'full_socratic'])
 
-function validateInitialFeedback(parsed) {
+function validateInitialFeedback(parsed, options = {}) {
+  const { isAnalyzePass = false } = options
   const errors = []
 
   if (typeof parsed !== 'object' || parsed === null) {
@@ -43,7 +44,7 @@ function validateInitialFeedback(parsed) {
           return false
         }
         return true
-      }).slice(0, 2) // enforce max 2
+      }).slice(0, isAnalyzePass ? Infinity : 2) // enforce max 2 (unlimited on the analyze pass)
     }
   } else {
     parsed.direct_feedback = []
@@ -69,7 +70,7 @@ function validateInitialFeedback(parsed) {
           return false
         }
         return true
-      }).slice(0, 1) // enforce max 1 socratic
+      }).slice(0, isAnalyzePass ? Infinity : 1) // enforce max 1 socratic (unlimited on the analyze pass)
     }
   } else {
     parsed.socratic_questions = []

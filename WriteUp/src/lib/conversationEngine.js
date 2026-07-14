@@ -1188,7 +1188,9 @@ async function processConversationTurn({
   // shape before any of it reaches the frontend. Invalid error types,
   // bad tracks, and non-boolean flags are corrected or dropped.
   if (turnType === "initial_feedback") {
-    const { sanitized, errors: validationErrors } = validateInitialFeedback(parsed);
+    const { sanitized, errors: validationErrors } = validateInitialFeedback(parsed, {
+      isAnalyzePass: feedbackFocus === "analyze"
+    });
     if (validationErrors.length > 0) console.log('Validation issues:', validationErrors);
     if (sanitized) parsed = sanitized;
   } else if (turnType === "student_revision") {
